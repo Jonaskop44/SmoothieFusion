@@ -39,13 +39,8 @@ class RecipeSerializer(serializers.ModelSerializer):
         return data
     
     def create(self, validated_data):
-        # Extract the ingredients data and remove it from the validated data
         ingredients_data = validated_data.pop('ingredients')
-        
-        # Create the recipe object
         recipe = Recipe.objects.create(**validated_data)
-        
-        # Create ingredients and link them to the recipe
         for ingredient_data in ingredients_data:
             Ingredient.objects.create(recipe=recipe, **ingredient_data)
         
