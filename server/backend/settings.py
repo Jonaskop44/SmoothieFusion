@@ -6,7 +6,7 @@ load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 SECRET_KEY = 'django-insecure-qd!8(38uxojqm397x#bfcajq5cjr^$oy!=n7c)zz!y-z!(l2wi'
 DEBUG = True
 ALLOWED_HOSTS = []
