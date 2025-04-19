@@ -28,8 +28,6 @@ def get_recipe_by_id(request, recipe_id):
 @permission_classes([IsAuthenticated])
 @parser_classes([MultiPartParser, FormParser])
 def create_recipe(request):
-    print(f"Received data: {request.data}")
-
     data = {
         'name': request.data.get('name'),
         'instructions': request.data.get('instructions'),
@@ -56,12 +54,11 @@ def create_recipe(request):
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    print("Serializer errors:", serializer.errors)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
+@parser_classes([MultiPartParser, FormParser])
 def update_recipe(request, recipe_id):
     try:
         recipe = Recipe.objects.get(id=recipe_id)
@@ -70,8 +67,30 @@ def update_recipe(request, recipe_id):
     
     if recipe.author.id != request.user.id:
         return Response({"error": "You do not have permission to edit this recipe"}, status=status.HTTP_403_FORBIDDEN)
-    
-    serializer = RecipeSerializer(recipe, data=request.data, partial=True)
+
+    data = {
+        'name': request.data.get('name', recipe.name),
+        'instructions': request.data.get('instructions', recipe.instructions),
+        'author': request.user.id,
+    }
+
+    raw_ingredients = request.data.get('ingredients')
+    if raw_ingredients:
+        if isinstance(raw_ingredients, list):
+            raw_ingredients = raw_ingredients[0]
+        try:
+            data['ingredients'] = json.loads(raw_ingredients)
+        except (TypeError, json.JSONDecodeError):
+            return Response({'ingredients': 'Invalid JSON format'}, status=status.HTTP_400_BAD_REQUEST)
+
+    if 'image' in request.FILES:
+        image = request.FILES['image']
+        extension = os.path.splitext(image.name)[1]
+        random_name = f"{request.user.id}-{uuid.uuid4().hex}{extension}"
+        image.name = random_name
+        data['image'] = image
+
+    serializer = RecipeSerializer(recipe, data=data, partial=True)
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)

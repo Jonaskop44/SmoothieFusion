@@ -23,7 +23,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         if not name or len(name.strip()) < 3:
             raise serializers.ValidationError({'name': 'Name must be at least 3 characters long.'})
 
-        if not ingredients or len(ingredients) < 1:
+        if self.partial is False and (not ingredients or len(ingredients) < 1):
             raise serializers.ValidationError({'ingredients': 'Please provide at least one ingredient.'})
 
         if not instructions or len(instructions.strip()) < 10:
