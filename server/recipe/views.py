@@ -54,10 +54,6 @@ def create_recipe(request):
     print("Serializer errors:", serializer.errors)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-
-
-
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
 def update_recipe(request, recipe_id):
