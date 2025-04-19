@@ -20,3 +20,7 @@ class User(models.Model):
             'created_at': self.created_at,
             'updated_at': self.updated_at
         }
+
+    @property
+    def is_authenticated(self):
+        return True
