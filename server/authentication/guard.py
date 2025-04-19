@@ -28,7 +28,6 @@ class JWTAuthentication(BaseAuthentication):
     def decode_jwt(self, token):
         try:
             payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
-            print(f"Decoded payload: {payload}")
             user = User.objects.get(id=payload['user_id'])
             return (user, token)
         except jwt.ExpiredSignatureError:

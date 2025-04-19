@@ -39,7 +39,7 @@ def update_recipe(request, recipe_id):
     except Recipe.DoesNotExist:
         return Response({"error": "Recipe not found"}, status=status.HTTP_404_NOT_FOUND)
     
-    if recipe.author != request.user.id:
+    if recipe.author.id != request.user.id:
         return Response({"error": "You do not have permission to edit this recipe"}, status=status.HTTP_403_FORBIDDEN)
     
     serializer = RecipeSerializer(recipe, data=request.data, partial=True)
@@ -56,7 +56,7 @@ def delete_recipe(request, recipe_id):
     except Recipe.DoesNotExist:
         return Response({"error": "Recipe not found"}, status=status.HTTP_404_NOT_FOUND)
     
-    if recipe.author != request.user.id:
+    if recipe.author.id != request.user.id:
         return Response({"error": "You do not have permission to delete this recipe"}, status=status.HTTP_403_FORBIDDEN)
     
     recipe.delete()
