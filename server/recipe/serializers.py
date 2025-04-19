@@ -45,3 +45,17 @@ class RecipeSerializer(serializers.ModelSerializer):
             Ingredient.objects.create(recipe=recipe, **ingredient_data)
         
         return recipe
+    
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get('name', instance.name)
+        instance.instructions = validated_data.get('instructions', instance.instructions)
+        instance.image = validated_data.get('image', instance.image)
+
+        ingredients_data = validated_data.get('ingredients', None)
+        if ingredients_data:
+            instance.ingredients.all().delete()
+            for ingredient_data in ingredients_data:
+                Ingredient.objects.create(recipe=instance, **ingredient_data)
+
+        instance.save()
+        return instance
