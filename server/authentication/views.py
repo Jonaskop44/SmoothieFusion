@@ -7,7 +7,6 @@ from user.serializers import UserSerializer
 from .serializers import LoginSerializer
 from .utils import generate_tokens, verify_token
 import jwt
-import datetime
 import os
 from user.models import User
 
