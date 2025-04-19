@@ -1,3 +1,5 @@
+import os
+import uuid
 from rest_framework.decorators import api_view, permission_classes, parser_classes
 from rest_framework.response import Response
 from rest_framework import status
@@ -44,7 +46,11 @@ def create_recipe(request):
         return Response({'ingredients': 'Invalid JSON format'}, status=status.HTTP_400_BAD_REQUEST)
 
     if 'image' in request.FILES:
-        data['image'] = request.FILES['image']
+        image = request.FILES['image']
+        extension = os.path.splitext(image.name)[1]
+        random_name = f"{request.user.id}-{uuid.uuid4().hex}{extension}"
+        image.name = random_name
+        data['image'] = image
 
     serializer = RecipeSerializer(data=data)
     if serializer.is_valid():
