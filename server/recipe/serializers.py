@@ -1,7 +1,14 @@
 from rest_framework import serializers
-from .models import Recipe
+from .models import Recipe, Ingredient
+
+class IngredientSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ingredient
+        fields = ['id', 'name', 'amount', 'unit']
+        read_only_fields = ['id']
 
 class RecipeSerializer(serializers.ModelSerializer):
+    ingredients = IngredientSerializer(many=True)
     class Meta:
         model = Recipe
         fields = ['id', 'name', 'ingredients', 'instructions', 'image', 'author', 'created_at', 'updated_at']
@@ -16,8 +23,8 @@ class RecipeSerializer(serializers.ModelSerializer):
         if not name or len(name.strip()) < 3:
             raise serializers.ValidationError({'name': 'Name must be at least 3 characters long.'})
 
-        if not ingredients or len(ingredients.strip()) < 10:
-            raise serializers.ValidationError({'ingredients': 'Please provide more detailed ingredients.'})
+        if not ingredients or len(ingredients) < 1:
+            raise serializers.ValidationError({'ingredients': 'Please provide at least one ingredient.'})
 
         if not instructions or len(instructions.strip()) < 10:
             raise serializers.ValidationError({'instructions': 'Please provide more detailed instructions.'})
@@ -30,3 +37,16 @@ class RecipeSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError({'image': 'Image size must be less than 10MB.'})
 
         return data
+    
+    def create(self, validated_data):
+        # Extract the ingredients data and remove it from the validated data
+        ingredients_data = validated_data.pop('ingredients')
+        
+        # Create the recipe object
+        recipe = Recipe.objects.create(**validated_data)
+        
+        # Create ingredients and link them to the recipe
+        for ingredient_data in ingredients_data:
+            Ingredient.objects.create(recipe=recipe, **ingredient_data)
+        
+        return recipe
