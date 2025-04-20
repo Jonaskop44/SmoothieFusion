@@ -23,7 +23,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     reviews = ReviewSerializer(many=True, read_only=True)
     class Meta:
         model = Recipe
-        fields = ['id', 'name', 'ingredients', 'instructions', 'image', 'author', 'created_at', 'updated_at']
+        fields = ['id', 'name', 'ingredients', 'instructions', 'image', 'author', 'reviews', 'created_at', 'updated_at']
         read_only_fields = ['id', 'created_at', 'updated_at']
 
     def validate(self, data):
