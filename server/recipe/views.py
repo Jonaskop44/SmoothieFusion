@@ -21,7 +21,22 @@ def get_recipe_by_id(request, recipe_id):
     try:
         recipe = Recipe.objects.get(id=recipe_id)
         serializer = RecipeSerializer(recipe)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+
+        #Replace the author ID with the user object
+        author = get_user_by_id(recipe.author.id)
+        recipe_data = serializer.data
+        recipe_data['author'] = {
+            'username': author.username,
+        }
+
+        #Replace the author ID in the reviews with the user object
+        for review in recipe_data['reviews']:
+            author = get_user_by_id(review['author'])
+            review['author'] = {
+                'username': author.username,
+            }
+
+        return Response(recipe_data, status=status.HTTP_200_OK)
     except Recipe.DoesNotExist:
         return Response({'error': 'Recipe not found'}, status=status.HTTP_404_NOT_FOUND)
     
@@ -132,33 +147,3 @@ def create_review(request, recipe_id):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-@api_view(['GET'])
-def get_reviews_by_recipe_id(request, recipe_id):
-    try:
-        recipe = Recipe.objects.get(id=recipe_id)
-    except Recipe.DoesNotExist:
-        return Response({"error": "Recipe not found"}, status=status.HTTP_404_NOT_FOUND)
-
-    reviews = recipe.reviews.all()
-    response_data = []
-
-    for review in reviews:
-        author = get_user_by_id(review.author.id)
-        review_data = {
-            'id': review.id,
-            'name': review.name,
-            'description': review.description,
-            'rating': review.rating,
-            'recipe': review.recipe.id,
-            'author': {
-                'id': author.id,
-                'username': author.username,
-                'email': author.email,
-            },
-            'created_at': review.created_at,
-            'updated_at': review.updated_at
-        }
-        response_data.append(review_data)
-
-    return Response(response_data, status=status.HTTP_200_OK)
