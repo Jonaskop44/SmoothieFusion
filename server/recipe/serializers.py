@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Recipe, Ingredient
+from .models import Recipe, Ingredient, Review
 
 class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
@@ -7,8 +7,20 @@ class IngredientSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'amount', 'unit']
         read_only_fields = ['id']
 
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = ['id', 'name', 'description', 'rating', 'recipe', 'author', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+    def validate(self, data):
+        if not (0 <= data.get('rating', 0) <= 5):
+            raise serializers.ValidationError({'rating': 'Rating must be between 0 and 5.'})
+        return data
+
 class RecipeSerializer(serializers.ModelSerializer):
     ingredients = IngredientSerializer(many=True)
+    reviews = ReviewSerializer(many=True, read_only=True)
     class Meta:
         model = Recipe
         fields = ['id', 'name', 'ingredients', 'instructions', 'image', 'author', 'created_at', 'updated_at']

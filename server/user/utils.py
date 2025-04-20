@@ -6,3 +6,10 @@ def create_user(username: str, email: str, password: str) -> User:
     user = User(username=username, email=email, password=hashed_password)
     user.save()
     return user
+
+def get_user_by_id(user_id: int) -> User:
+    try:
+        user = User.objects.get(id=user_id)
+        return user
+    except User.DoesNotExist:
+        return None

@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import get_all_recipes, get_recipe_by_id, create_recipe, update_recipe, delete_recipe
+from .views import get_all_recipes, get_recipe_by_id, create_recipe, update_recipe, delete_recipe, create_review, get_reviews_by_recipe_id
 
 urlpatterns = [
     path('', get_all_recipes, name='get_all_recipes'),
@@ -7,4 +7,6 @@ urlpatterns = [
     path('create/', create_recipe, name='create_recipe'),
     path('update/<int:recipe_id>/', update_recipe, name='update_recipe'),
     path('delete/<int:recipe_id>/', delete_recipe, name='delete_recipe'),
+    path('<int:recipe_id>/review/', create_review, name='create_review'),
+    path('<int:recipe_id>/reviews/', get_reviews_by_recipe_id, name='get_reviews_by_recipe_id'),
 ]

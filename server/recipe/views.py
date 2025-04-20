@@ -4,10 +4,11 @@ from rest_framework.decorators import api_view, permission_classes, parser_class
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Recipe
-from .serializers import RecipeSerializer
+from .serializers import RecipeSerializer, ReviewSerializer
 from rest_framework.permissions import IsAuthenticated
 import json
 from rest_framework.parsers import MultiPartParser, FormParser
+from user.utils import get_user_by_id
 
 @api_view(['GET'])
 def get_all_recipes(request):
@@ -109,3 +110,55 @@ def delete_recipe(request, recipe_id):
     
     recipe.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_review(request, recipe_id):
+    try:
+        recipe = Recipe.objects.get(id=recipe_id)
+    except Recipe.DoesNotExist:
+        return Response({"error": "Recipe not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    data = {
+        'name': request.data.get('name'),
+        'description': request.data.get('description'),
+        'rating': request.data.get('rating'),
+        'recipe': recipe.id,
+        'author': request.user.id,
+    }
+
+    serializer = ReviewSerializer(data=data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+def get_reviews_by_recipe_id(request, recipe_id):
+    try:
+        recipe = Recipe.objects.get(id=recipe_id)
+    except Recipe.DoesNotExist:
+        return Response({"error": "Recipe not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    reviews = recipe.reviews.all()
+    response_data = []
+
+    for review in reviews:
+        author = get_user_by_id(review.author.id)
+        review_data = {
+            'id': review.id,
+            'name': review.name,
+            'description': review.description,
+            'rating': review.rating,
+            'recipe': review.recipe.id,
+            'author': {
+                'id': author.id,
+                'username': author.username,
+                'email': author.email,
+            },
+            'created_at': review.created_at,
+            'updated_at': review.updated_at
+        }
+        response_data.append(review_data)
+
+    return Response(response_data, status=status.HTTP_200_OK)
