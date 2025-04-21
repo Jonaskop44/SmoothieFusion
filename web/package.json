@@ -10,10 +10,13 @@
   },
   "dependencies": {
     "@heroui/react": "^2.7.6",
+    "@iconify/react": "^5.2.1",
+    "axios": "^1.8.4",
     "framer-motion": "^12.7.4",
     "next": "15.3.1",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
