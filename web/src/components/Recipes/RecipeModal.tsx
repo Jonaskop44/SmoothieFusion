@@ -94,8 +94,8 @@ const RecipeModal: FC<RecipeModalProps> = ({
                 <Image
                   src={`${BACKEND_URL}${recipe.image}`}
                   alt={recipe.name}
-                  width={800}
-                  height={600}
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   className="object-cover rounded-lg"
                 />
               </div>

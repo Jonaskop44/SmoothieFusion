@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import type { Recipe } from "@/types/recipe";
+import type { Recipe, Unit } from "@/types/recipe";
 import RecipeGrid from "@/components/Recipes/Grid";
 import RecipeFilters from "@/components/Recipes/Filters";
 import RecipeSearch from "@/components/Recipes/Search";
@@ -12,8 +12,8 @@ const RecipesPage = () => {
   const [filteredRecipes, setFilteredRecipes] = useState<Recipe[]>(recipes);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedIngredients, setSelectedIngredients] = useState<string[]>([]);
+  const [selectedUnits, setSelectedUnits] = useState<Unit[]>([]);
 
-  //Effect to filter recipes based on search term and selected ingredients
   useEffect(() => {
     let result = [...recipes];
 
@@ -28,7 +28,6 @@ const RecipesPage = () => {
       );
     }
 
-    //filter by selected ingredients
     if (selectedIngredients.length > 0) {
       result = result.filter((recipe) =>
         selectedIngredients.every((selectedIngredient) =>
@@ -40,8 +39,16 @@ const RecipesPage = () => {
       );
     }
 
+    if (selectedUnits.length > 0) {
+      result = result.filter((recipe) =>
+        recipe.ingredients.some((ingredient) =>
+          selectedUnits.includes(ingredient.unit)
+        )
+      );
+    }
+
     setFilteredRecipes(result);
-  }, [recipes, searchQuery, selectedIngredients]);
+  }, [recipes, searchQuery, selectedIngredients, selectedUnits]);
 
   const getAllIngredients = () => {
     const ingredientSet = new Set<string>();
@@ -65,9 +72,16 @@ const RecipesPage = () => {
     );
   };
 
+  const handleUnitToggle = (unit: Unit) => {
+    setSelectedUnits((prev) =>
+      prev.includes(unit) ? prev.filter((u) => u !== unit) : [...prev, unit]
+    );
+  };
+
   const clearFilters = () => {
     setSearchQuery("");
     setSelectedIngredients([]);
+    setSelectedUnits([]);
   };
 
   const allIngredients = getAllIngredients();
@@ -97,6 +111,8 @@ const RecipesPage = () => {
                   ingredients={allIngredients}
                   selectedIngredients={selectedIngredients}
                   onIngredientToggle={handleIngredientToggle}
+                  selectedUnits={selectedUnits}
+                  onUnitToggle={handleUnitToggle}
                   onClearFilters={clearFilters}
                 />
               </div>
