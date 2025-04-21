@@ -7,6 +7,7 @@ import { Icon } from "@iconify/react";
 import { Button, Pagination } from "@heroui/react";
 import type { Recipe } from "@/types/recipe";
 import EmptyRecipeState from "@/components/UI/EmptyRecipeState";
+import { BACKEND_URL } from "@/lib/config";
 
 interface RecipeCarouselProps {
   recipes: Recipe[];
@@ -85,7 +86,7 @@ const RecipeCarousel: FC<RecipeCarouselProps> = ({ recipes, hasRecipes }) => {
                   </div>
                   <div className="relative">
                     <Image
-                      src={recipes[currentRecipe]?.image || "/placeholder.svg"}
+                      src={`${BACKEND_URL}${recipes[currentRecipe]?.image}`}
                       alt={recipes[currentRecipe]?.name}
                       width={600}
                       height={400}
