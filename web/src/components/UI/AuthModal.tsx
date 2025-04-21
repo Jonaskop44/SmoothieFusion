@@ -7,73 +7,183 @@ import {
   Button,
   Checkbox,
   Input,
-  Link,
 } from "@heroui/react";
-import { FC } from "react";
+import { FC, useState } from "react";
 import { Icon } from "@iconify/react";
+import ApiClient from "@/api";
+import { toast } from "sonner";
+import Cookies from "js-cookie";
 
+export type AuthVariant = "LOGIN" | "SIGNUP";
 interface AuthModalProps {
   isOpen: boolean;
-  onOpen: () => void;
   onOpenChange: () => void;
+  variant: AuthVariant;
+  onVariantChange: (variant: AuthVariant) => void;
 }
 
-const AuthModal: FC<AuthModalProps> = ({ isOpen, onOpenChange, onOpen }) => {
+const apiClient = new ApiClient();
+
+const AuthModal: FC<AuthModalProps> = ({
+  isOpen,
+  onOpenChange,
+  variant,
+  onVariantChange,
+}) => {
+  const [data, setData] = useState({
+    username: "",
+    email: "",
+    password: "",
+    rememberMe: false,
+  });
+  const [isLoading, setIsLoading] = useState(false);
+
+  const isLogin = variant === "LOGIN";
+  const title = isLogin ? "Anmelden" : "Registrieren";
+  const buttonText = isLoading
+    ? "Wird geladen..."
+    : isLogin
+    ? "Anmelden"
+    : "Registrieren";
+  const toggleText = isLogin ? "Noch kein Konto?" : "Bereits ein Konto?";
+  const toggleAction = isLogin ? "Registrieren" : "Anmelden";
+
+  const handleToggleVariant = () => {
+    onVariantChange(isLogin ? "SIGNUP" : "LOGIN");
+  };
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    setIsLoading(true);
+    if (isLogin) {
+      apiClient.auth.helper
+        .login(data)
+        .then((response) => {
+          if (response.status) {
+            toast.success("Erfolgreich angemeldet!");
+            onOpenChange();
+            Cookies.set("accessToken", response.data.accessToken, {
+              expires: 1,
+            });
+            if (data.rememberMe) {
+              Cookies.set("refreshToken", response.data.refreshToken, {
+                expires: 7,
+              });
+            }
+            setData({
+              username: "",
+              email: "",
+              password: "",
+              rememberMe: false,
+            });
+          } else {
+            toast.error("Ihr Passwort oder Ihre E-Mail-Adresse ist falsch.");
+          }
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
+  };
+
   return (
     <>
-      <Button color="primary" onPress={onOpen}>
-        Open Modal
-      </Button>
-      <Modal isOpen={isOpen} placement="top-center" onOpenChange={onOpenChange}>
+      <Modal
+        isOpen={isOpen}
+        placement="top-center"
+        onOpenChange={onOpenChange}
+        backdrop="blur"
+      >
         <ModalContent>
-          {(onClose) => (
+          {() => (
             <>
-              <ModalHeader className="flex flex-col gap-1">Log in</ModalHeader>
-              <ModalBody>
-                <Input
-                  endContent={
-                    <Icon
-                      icon="solar:letter-bold"
-                      className="text-2xl text-default-400 pointer-events-none flex-shrink-0"
+              <ModalHeader className="flex flex-col gap-1 text-emerald-600">
+                {title}
+              </ModalHeader>
+              <form onSubmit={(event) => handleSubmit(event)}>
+                <ModalBody>
+                  {!isLogin && (
+                    <Input
+                      endContent={
+                        <Icon
+                          icon="solar:user-bold"
+                          className="text-2xl text-default-400 pointer-events-none flex-shrink-0"
+                        />
+                      }
+                      label="Name"
+                      placeholder="Dein Name"
+                      variant="bordered"
+                      value={data.username}
+                      onChange={(e) =>
+                        setData({ ...data, username: e.target.value })
+                      }
                     />
-                  }
-                  label="Email"
-                  placeholder="Enter your email"
-                  variant="bordered"
-                />
-                <Input
-                  endContent={
-                    <Icon
-                      icon="solar:lock-password-bold"
-                      className="text-2xl text-default-400 pointer-events-none flex-shrink-0"
-                    />
-                  }
-                  label="Password"
-                  placeholder="Enter your password"
-                  type="password"
-                  variant="bordered"
-                />
-                <div className="flex py-2 px-1 justify-between">
-                  <Checkbox
-                    classNames={{
-                      label: "text-small",
-                    }}
+                  )}
+                  <Input
+                    endContent={
+                      <Icon
+                        icon="solar:letter-bold"
+                        className="text-2xl text-default-400 pointer-events-none flex-shrink-0"
+                      />
+                    }
+                    label="E-Mail"
+                    placeholder="Deine E-Mail-Adresse"
+                    variant="bordered"
+                    value={data.email}
+                    onChange={(e) =>
+                      setData({ ...data, email: e.target.value })
+                    }
+                  />
+                  <Input
+                    endContent={
+                      <Icon
+                        icon="solar:lock-password-bold"
+                        className="text-2xl text-default-400 pointer-events-none flex-shrink-0"
+                      />
+                    }
+                    label="Passwort"
+                    placeholder="Dein Passwort"
+                    type="password"
+                    variant="bordered"
+                    value={data.password}
+                    onChange={(e) =>
+                      setData({ ...data, password: e.target.value })
+                    }
+                  />
+                  {isLogin && (
+                    <div className="flex py-2 px-1 justify-between">
+                      <Checkbox
+                        isSelected={data.rememberMe}
+                        onValueChange={(value) => {
+                          setData({ ...data, rememberMe: value });
+                        }}
+                      >
+                        Angemeldet bleiben
+                      </Checkbox>
+                    </div>
+                  )}
+                </ModalBody>
+                <ModalFooter className="flex flex-col items-center">
+                  <Button
+                    type="submit"
+                    color="primary"
+                    className="w-full bg-emerald-600 hover:bg-emerald-700"
+                    isLoading={isLoading}
                   >
-                    Remember me
-                  </Checkbox>
-                  <Link color="primary" href="#" size="sm">
-                    Forgot password?
-                  </Link>
-                </div>
-              </ModalBody>
-              <ModalFooter>
-                <Button color="danger" variant="flat" onPress={onClose}>
-                  Close
-                </Button>
-                <Button color="primary" onPress={onClose}>
-                  Sign in
-                </Button>
-              </ModalFooter>
+                    {buttonText}
+                  </Button>
+                  <div className="w-full text-center mt-4">
+                    <span className="text-gray-600">{toggleText}</span>{" "}
+                    <Button
+                      variant="light"
+                      className="p-0 text-emerald-600 font-semibold"
+                      onPress={handleToggleVariant}
+                    >
+                      {toggleAction}
+                    </Button>
+                  </div>
+                </ModalFooter>
+              </form>
             </>
           )}
         </ModalContent>

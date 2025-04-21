@@ -7,9 +7,10 @@ export default class ApiClient {
   constructor() {
     this.auth = new Auth();
 
-    axios.defaults.headers.common["Authorization"] = `Bearer ${Cookies.get(
-      "accessToken"
-    )}`;
+    const accessToken = Cookies.get("accessToken");
+    if (accessToken) {
+      axios.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
+    }
     axios.defaults.baseURL = "http://127.0.0.1:3001/api/";
   }
 }
