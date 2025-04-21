@@ -52,6 +52,12 @@ const AuthModal: FC<AuthModalProps> = ({
 
   const handleToggleVariant = () => {
     onVariantChange(isLogin ? "SIGNUP" : "LOGIN");
+    setData({
+      username: "",
+      email: "",
+      password: "",
+      rememberMe: false,
+    });
   };
 
   const handleSubmit = (event: React.FormEvent) => {
@@ -82,6 +88,28 @@ const AuthModal: FC<AuthModalProps> = ({
             });
           } else {
             toast.error("Ihr Passwort oder Ihre E-Mail-Adresse ist falsch.");
+          }
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    } else {
+      apiClient.auth.helper
+        .register(data)
+        .then((response) => {
+          if (response.status) {
+            toast.success("Erfolgreich registriert! Melden Sie sich an.");
+            setData({
+              username: "",
+              email: "",
+              password: "",
+              rememberMe: false,
+            });
+            onVariantChange("LOGIN");
+          } else {
+            toast.error(
+              "Es existiert bereits ein Konto mit dieser E-Mail-Adresse."
+            );
           }
         })
         .finally(() => {
@@ -154,18 +182,16 @@ const AuthModal: FC<AuthModalProps> = ({
                       setData({ ...data, password: e.target.value })
                     }
                   />
-                  {isLogin && (
-                    <div className="flex py-2 px-1 justify-between">
-                      <Checkbox
-                        isSelected={data.rememberMe}
-                        onValueChange={(value) => {
-                          setData({ ...data, rememberMe: value });
-                        }}
-                      >
-                        Angemeldet bleiben
-                      </Checkbox>
-                    </div>
-                  )}
+                  <div className="flex py-2 px-1 justify-between">
+                    <Checkbox
+                      isSelected={data.rememberMe}
+                      onValueChange={(value) => {
+                        setData({ ...data, rememberMe: value });
+                      }}
+                    >
+                      Angemeldet bleiben
+                    </Checkbox>
+                  </div>
                 </ModalBody>
                 <ModalFooter className="flex flex-col items-center">
                   <Button
