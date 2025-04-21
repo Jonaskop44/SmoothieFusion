@@ -12,7 +12,9 @@ interface StyleProviderProps {
 const StyleProvider: FC<StyleProviderProps> = ({ children }) => {
   return (
     <>
+      <NavbarLayout />
       <HeroUIProvider>{children}</HeroUIProvider>
+      <FooterLayout />
     </>
   );
 };

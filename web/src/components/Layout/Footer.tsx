@@ -1,12 +1,11 @@
 import Link from "next/link";
 import { Icon } from "@iconify/react";
-import { Button, Input } from "@heroui/react";
 
 const FooterLayout = () => {
   return (
     <footer className="bg-gray-900 text-white py-12">
       <div className="container mx-auto px-4">
-        <div className="grid md:grid-cols-4 gap-8">
+        <div className="grid md:grid-cols-3 gap-8">
           <div>
             <div className="flex items-center space-x-2 mb-4">
               <Icon
@@ -86,25 +85,6 @@ const FooterLayout = () => {
                 </Link>
               </li>
             </ul>
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Newsletter</h3>
-            <p className="text-gray-400 mb-4">
-              Abonniere unseren Newsletter für die neuesten Rezepte und Tipps.
-            </p>
-            <div className="flex">
-              <Input
-                type="email"
-                placeholder="Deine E-Mail"
-                className="rounded-r-none"
-              />
-              <Button
-                color="primary"
-                className="bg-emerald-600 hover:bg-emerald-700 rounded-l-none"
-              >
-                Abonnieren
-              </Button>
-            </div>
           </div>
         </div>
         <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-500">

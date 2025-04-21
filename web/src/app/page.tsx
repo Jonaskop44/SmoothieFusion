@@ -1,7 +1,5 @@
 "use client";
 
-import FooterLayout from "@/components/Layout/Footer";
-import NavbarLayout from "@/components/Layout/Navbar";
 import CTASection from "@/components/Section/CTA";
 import Features from "@/components/Section/Featuers/Featuers";
 import Hero from "@/components/Section/Hero/Hero";
@@ -332,14 +330,12 @@ const Home = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <NavbarLayout />
       <main className="flex-grow">
         <Hero />
         <RecipeCarousel recipes={recipes} hasRecipes={hasRecipes} />
         <Features />
         <CTASection />
       </main>
-      <FooterLayout />
     </div>
   );
 };
