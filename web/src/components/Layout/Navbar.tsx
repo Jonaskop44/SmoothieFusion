@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { Icon } from "@iconify/react";
 import {
@@ -16,8 +17,9 @@ import {
 } from "@heroui/react";
 import clsx from "clsx";
 
-export default function NavbarLayout() {
+const NavbarLayout = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const pathname = usePathname();
 
   const menuItems = [
     { name: "Startseite", href: "/" },
@@ -56,16 +58,24 @@ export default function NavbarLayout() {
       </NavbarContent>
 
       <NavbarContent className="hidden md:flex gap-6" justify="center">
-        {navItemsLeft.map((item, index) => (
-          <NavbarItem key={`${item.name}-${index}`}>
-            <Link
-              href={item.href}
-              className="text-gray-600 font-medium hover:text-emerald-600 transition-colors"
-            >
-              {item.name}
-            </Link>
-          </NavbarItem>
-        ))}
+        {navItemsLeft.map((item, index) => {
+          const isActive = pathname === item.href;
+          return (
+            <NavbarItem key={`${item.name}-${index}`}>
+              <Link
+                href={item.href}
+                className={clsx(
+                  "font-medium transition-colors",
+                  isActive
+                    ? "text-emerald-600"
+                    : "text-gray-600 hover:text-emerald-600"
+                )}
+              >
+                {item.name}
+              </Link>
+            </NavbarItem>
+          );
+        })}
       </NavbarContent>
 
       <NavbarContent justify="end">
@@ -76,7 +86,10 @@ export default function NavbarLayout() {
               href={item.href}
               variant={item.isHighlighted ? "solid" : "bordered"}
               color={item.isHighlighted ? "primary" : "default"}
-              className={clsx(item.isHighlighted && "bg-emerald-600")}
+              className={clsx(
+                item.isHighlighted && "bg-emerald-600",
+                pathname === item.href && "border-emerald-600 text-emerald-600"
+              )}
             >
               {item.name}
             </Button>
@@ -89,19 +102,25 @@ export default function NavbarLayout() {
       </NavbarContent>
 
       <NavbarMenu className="pt-6">
-        {menuItems.map((item, index) => (
-          <NavbarMenuItem key={`${item.name}-${index}`}>
-            <Link
-              href={item.href}
-              className={`w-full block py-2 text-lg ${
-                index === 0 ? "text-emerald-600" : "text-gray-700"
-              }`}
-            >
-              {item.name}
-            </Link>
-          </NavbarMenuItem>
-        ))}
+        {menuItems.map((item, index) => {
+          const isActive = pathname === item.href;
+          return (
+            <NavbarMenuItem key={`${item.name}-${index}`}>
+              <Link
+                href={item.href}
+                className={clsx(
+                  "w-full block py-2 text-lg",
+                  isActive ? "text-emerald-600 font-semibold" : "text-gray-700"
+                )}
+              >
+                {item.name}
+              </Link>
+            </NavbarMenuItem>
+          );
+        })}
       </NavbarMenu>
     </Navbar>
   );
-}
+};
+
+export default NavbarLayout;
