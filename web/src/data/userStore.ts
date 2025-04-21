@@ -5,8 +5,10 @@ import ApiClient from "@/api";
 
 interface UserState {
   user: User;
+  isLoggedIn: boolean;
   setUser: (user: User) => void;
   fetchUser: () => void;
+  logout: () => void;
   refreshToken: () => void;
 }
 
@@ -14,7 +16,13 @@ const apiClient = new ApiClient();
 
 export const userStore = create<UserState>((set) => ({
   user: {} as User,
-  setUser: (user) => set({ user }),
+  isLoggedIn: false,
+  setUser: (user) => set({ user, isLoggedIn: !!user.id }),
+  logout: () => {
+    Cookies.remove("accessToken");
+    Cookies.remove("refreshToken");
+    set({ user: {} as User, isLoggedIn: false });
+  },
   fetchUser: () => {
     const token = Cookies.get("accessToken");
     if (!token) return;
@@ -23,13 +31,13 @@ export const userStore = create<UserState>((set) => ({
       .verifyToken(token)
       .then((response) => {
         if (response.status) {
-          set({ user: response.data });
+          set({ user: response.data, isLoggedIn: true });
         } else {
-          set({ user: {} as User });
+          set({ user: {} as User, isLoggedIn: false });
         }
       })
       .catch(() => {
-        set({ user: {} as User });
+        set({ user: {} as User, isLoggedIn: false });
       });
   },
   refreshToken: () => {

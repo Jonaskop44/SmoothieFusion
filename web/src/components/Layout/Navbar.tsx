@@ -14,16 +14,23 @@ import {
   NavbarMenu,
   NavbarMenuItem,
   Button,
+  Dropdown,
+  DropdownTrigger,
+  User,
+  DropdownItem,
+  DropdownMenu,
+  DropdownSection,
 } from "@heroui/react";
 import clsx from "clsx";
 import AuthModal, { AuthVariant } from "../UI/AuthModal";
 import { userStore } from "@/data/userStore";
+import { toast } from "sonner";
 
 const NavbarLayout = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authVariant, setAuthVariant] = useState<AuthVariant>("LOGIN");
-  const { user } = userStore();
+  const { user, isLoggedIn, logout } = userStore();
   const pathname = usePathname();
 
   const menuItems = [
@@ -92,25 +99,61 @@ const NavbarLayout = () => {
         </NavbarContent>
 
         <NavbarContent justify="end">
-          <NavbarItem className="hidden md:flex">
-            <Button
-              onPress={() => handleOpenAuthModal("LOGIN")}
-              variant="bordered"
-              color="default"
-            >
-              Anmelden
-            </Button>
-          </NavbarItem>
-          <NavbarItem className="hidden md:flex">
-            <Button
-              onPress={() => handleOpenAuthModal("SIGNUP")}
-              variant="solid"
-              color="primary"
-              className="bg-emerald-600"
-            >
-              Registrieren
-            </Button>
-          </NavbarItem>
+          {isLoggedIn ? (
+            <Dropdown showArrow>
+              <DropdownTrigger>
+                <User
+                  as="button"
+                  className="transition-transform"
+                  description={user.username}
+                  name={user.email?.split("@")[0]}
+                />
+              </DropdownTrigger>
+              <DropdownMenu aria-label="User Actions" variant="flat">
+                <DropdownSection showDivider>
+                  <DropdownItem key="" color="primary">
+                    <Link href="/profil" className="flex items-center gap-2">
+                      <Icon icon="solar:user-bold" className="text-xl" />
+                      Profil
+                    </Link>
+                  </DropdownItem>
+                </DropdownSection>
+                <DropdownItem
+                  key="logout"
+                  color="danger"
+                  onPress={() => {
+                    logout();
+                    toast.success("Erfolgreich abgemeldet");
+                  }}
+                  startContent={<Icon icon="solar:logout-2-broken" />}
+                >
+                  Abmelden
+                </DropdownItem>
+              </DropdownMenu>
+            </Dropdown>
+          ) : (
+            <>
+              <NavbarItem className="hidden md:flex">
+                <Button
+                  onPress={() => handleOpenAuthModal("LOGIN")}
+                  variant="bordered"
+                  color="default"
+                >
+                  Anmelden
+                </Button>
+              </NavbarItem>
+              <NavbarItem className="hidden md:flex">
+                <Button
+                  onPress={() => handleOpenAuthModal("SIGNUP")}
+                  variant="solid"
+                  color="primary"
+                  className="bg-emerald-600"
+                >
+                  Registrieren
+                </Button>
+              </NavbarItem>
+            </>
+          )}
           <NavbarMenuToggle
             aria-label={isMenuOpen ? "Menü schließen" : "Menü öffnen"}
             className="md:hidden"
