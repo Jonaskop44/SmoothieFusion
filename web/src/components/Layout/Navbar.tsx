@@ -25,13 +25,12 @@ const NavbarLayout = () => {
     { name: "Startseite", href: "/" },
     { name: "Rezepte", href: "/rezepte" },
     { name: "Erstellen", href: "/erstellen" },
-    { name: "Über uns", href: "/ueber-uns" },
     { name: "Anmelden", href: "/login" },
     { name: "Registrieren", href: "/register", isHighlighted: true },
   ];
 
-  const navItemsLeft = menuItems.slice(0, 4);
-  const navItemsRight = menuItems.slice(4);
+  const navItemsLeft = menuItems.slice(0, 3);
+  const navItemsRight = menuItems.slice(3);
 
   return (
     <Navbar onMenuOpenChange={setIsMenuOpen} className="border-b">

@@ -50,7 +50,7 @@ const Hero = () => {
           >
             <div className="aspect-square relative">
               <Image
-                src="/placeholder.svg?height=600&width=600"
+                src="/images/Hero.png"
                 alt="Verschiedene Smoothies"
                 fill
                 sizes="(max-width: 768px) 100vw, 50vw"
