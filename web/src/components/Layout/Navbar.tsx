@@ -35,7 +35,7 @@ const NavbarLayout = () => {
 
   const menuItems = [
     { name: "Startseite", href: "/" },
-    { name: "Rezepte", href: "/rezepte" },
+    { name: "Rezepte", href: "/recipes" },
     { name: "Erstellen", href: "/erstellen" },
     { name: "Anmelden", href: "#" },
     { name: "Registrieren", href: "#" },
