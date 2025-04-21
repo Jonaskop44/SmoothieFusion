@@ -14,6 +14,7 @@ import {
   NavbarMenuItem,
   Button,
 } from "@heroui/react";
+import clsx from "clsx";
 
 export default function NavbarLayout() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
@@ -27,13 +28,12 @@ export default function NavbarLayout() {
     { name: "Registrieren", href: "/register", isHighlighted: true },
   ];
 
+  const navItemsLeft = menuItems.slice(0, 4);
+  const navItemsRight = menuItems.slice(4);
+
   return (
     <Navbar onMenuOpenChange={setIsMenuOpen} className="border-b">
       <NavbarContent>
-        <NavbarMenuToggle
-          aria-label={isMenuOpen ? "Menü schließen" : "Menü öffnen"}
-          className="md:hidden"
-        />
         <NavbarBrand as={Link} href="/" className="flex items-center space-x-2">
           <motion.div
             initial={{ rotate: -10 }}
@@ -56,56 +56,36 @@ export default function NavbarLayout() {
       </NavbarContent>
 
       <NavbarContent className="hidden md:flex gap-6" justify="center">
-        <NavbarItem>
-          <Link
-            href="/"
-            className="text-emerald-600 font-medium hover:text-emerald-800 transition-colors"
-          >
-            Startseite
-          </Link>
-        </NavbarItem>
-        <NavbarItem>
-          <Link
-            href="/rezepte"
-            className="text-gray-600 font-medium hover:text-emerald-600 transition-colors"
-          >
-            Rezepte
-          </Link>
-        </NavbarItem>
-        <NavbarItem>
-          <Link
-            href="/erstellen"
-            className="text-gray-600 font-medium hover:text-emerald-600 transition-colors"
-          >
-            Erstellen
-          </Link>
-        </NavbarItem>
-        <NavbarItem>
-          <Link
-            href="/ueber-uns"
-            className="text-gray-600 font-medium hover:text-emerald-600 transition-colors"
-          >
-            Über uns
-          </Link>
-        </NavbarItem>
+        {navItemsLeft.map((item, index) => (
+          <NavbarItem key={`${item.name}-${index}`}>
+            <Link
+              href={item.href}
+              className="text-gray-600 font-medium hover:text-emerald-600 transition-colors"
+            >
+              {item.name}
+            </Link>
+          </NavbarItem>
+        ))}
       </NavbarContent>
 
       <NavbarContent justify="end">
-        <NavbarItem className="hidden md:flex">
-          <Button as={Link} href="/login" variant="bordered" color="default">
-            Anmelden
-          </Button>
-        </NavbarItem>
-        <NavbarItem>
-          <Button
-            as={Link}
-            href="/register"
-            color="primary"
-            className="bg-emerald-600 hover:bg-emerald-700"
-          >
-            Registrieren
-          </Button>
-        </NavbarItem>
+        {navItemsRight.map((item, index) => (
+          <NavbarItem key={`${item.name}-${index}`} className="hidden md:flex">
+            <Button
+              as={Link}
+              href={item.href}
+              variant={item.isHighlighted ? "solid" : "bordered"}
+              color={item.isHighlighted ? "primary" : "default"}
+              className={clsx(item.isHighlighted && "bg-emerald-600")}
+            >
+              {item.name}
+            </Button>
+          </NavbarItem>
+        ))}
+        <NavbarMenuToggle
+          aria-label={isMenuOpen ? "Menü schließen" : "Menü öffnen"}
+          className="md:hidden"
+        />
       </NavbarContent>
 
       <NavbarMenu className="pt-6">
@@ -114,11 +94,7 @@ export default function NavbarLayout() {
             <Link
               href={item.href}
               className={`w-full block py-2 text-lg ${
-                item.isHighlighted
-                  ? "text-emerald-600 font-semibold"
-                  : index === 0
-                  ? "text-emerald-600"
-                  : "text-gray-700"
+                index === 0 ? "text-emerald-600" : "text-gray-700"
               }`}
             >
               {item.name}
