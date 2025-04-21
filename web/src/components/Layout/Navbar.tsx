@@ -161,51 +161,61 @@ const NavbarLayout = () => {
         </NavbarContent>
 
         <NavbarMenu className="pt-6">
-          {menuItems.map((item, index) => {
-            const isActive = pathname === item.href;
+          {menuItems
+            .filter((item) => {
+              if (
+                isLoggedIn &&
+                (item.name === "Anmelden" || item.name === "Registrieren")
+              ) {
+                return false;
+              }
+              return true;
+            })
+            .map((item, index) => {
+              const isActive = pathname === item.href;
 
-            if (item.name === "Anmelden") {
+              if (!isLoggedIn && item.name === "Anmelden") {
+                return (
+                  <NavbarMenuItem key="mobile-login">
+                    <button
+                      onClick={() => handleOpenAuthModal("LOGIN")}
+                      className="w-full block py-2 text-lg text-gray-700 text-left"
+                    >
+                      Anmelden
+                    </button>
+                  </NavbarMenuItem>
+                );
+              }
+
+              if (!isLoggedIn && item.name === "Registrieren") {
+                return (
+                  <NavbarMenuItem key="mobile-register">
+                    <button
+                      onClick={() => handleOpenAuthModal("SIGNUP")}
+                      className="w-full block py-2 text-lg text-left text-emerald-600 font-semibold"
+                    >
+                      Registrieren
+                    </button>
+                  </NavbarMenuItem>
+                );
+              }
+
               return (
-                <NavbarMenuItem key="mobile-login">
-                  <button
-                    onClick={() => handleOpenAuthModal("LOGIN")}
-                    className="w-full block py-2 text-lg text-gray-700 text-left"
+                <NavbarMenuItem key={`${item.name}-${index}`}>
+                  <Link
+                    href={item.href}
+                    className={clsx(
+                      "w-full block py-2 text-lg",
+                      isActive
+                        ? "text-emerald-600 font-semibold"
+                        : "text-gray-700"
+                    )}
                   >
-                    Anmelden
-                  </button>
+                    {item.name}
+                  </Link>
                 </NavbarMenuItem>
               );
-            }
-
-            if (item.name === "Registrieren") {
-              return (
-                <NavbarMenuItem key="mobile-register">
-                  <button
-                    onClick={() => handleOpenAuthModal("SIGNUP")}
-                    className="w-full block py-2 text-lg text-left text-emerald-600 font-semibold"
-                  >
-                    Registrieren
-                  </button>
-                </NavbarMenuItem>
-              );
-            }
-
-            return (
-              <NavbarMenuItem key={`${item.name}-${index}`}>
-                <Link
-                  href={item.href}
-                  className={clsx(
-                    "w-full block py-2 text-lg",
-                    isActive
-                      ? "text-emerald-600 font-semibold"
-                      : "text-gray-700"
-                  )}
-                >
-                  {item.name}
-                </Link>
-              </NavbarMenuItem>
-            );
-          })}
+            })}
         </NavbarMenu>
       </Navbar>
       <AuthModal

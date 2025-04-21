@@ -13,6 +13,7 @@ import { Icon } from "@iconify/react";
 import ApiClient from "@/api";
 import { toast } from "sonner";
 import Cookies from "js-cookie";
+import { userStore } from "@/data/userStore";
 
 export type AuthVariant = "LOGIN" | "SIGNUP";
 interface AuthModalProps {
@@ -37,6 +38,7 @@ const AuthModal: FC<AuthModalProps> = ({
     rememberMe: false,
   });
   const [isLoading, setIsLoading] = useState(false);
+  const { setUser } = userStore();
 
   const isLogin = variant === "LOGIN";
   const title = isLogin ? "Anmelden" : "Registrieren";
@@ -61,7 +63,9 @@ const AuthModal: FC<AuthModalProps> = ({
         .then((response) => {
           if (response.status) {
             toast.success("Erfolgreich angemeldet!");
+
             onOpenChange();
+            setUser(response.data.user);
             Cookies.set("accessToken", response.data.accessToken, {
               expires: 1,
             });
