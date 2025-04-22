@@ -4,8 +4,11 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { Button } from "@heroui/react";
 import { containerVariants, itemVariants } from "./animations";
+import { useRouter } from "next/navigation";
 
 const Hero = () => {
+  const router = useRouter();
+
   return (
     <section className="py-10 md:py-16 lg:py-24 bg-gradient-to-b from-emerald-50 to-white overflow-hidden">
       <div className="container mx-auto px-4">
@@ -35,6 +38,7 @@ const Hero = () => {
                 Rezept erstellen
               </Button>
               <Button
+                onPress={() => router.push("/recipes")}
                 variant="bordered"
                 className="text-base md:text-lg h-12 md:h-14 px-6 md:px-8"
               >
