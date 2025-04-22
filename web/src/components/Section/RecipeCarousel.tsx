@@ -19,6 +19,15 @@ const RecipeCarousel: FC<RecipeCarouselProps> = ({ recipes, hasRecipes }) => {
   const [currentRecipe, setCurrentRecipe] = useState<number>(0);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
+  const calculateAverageRating = (recipe: Recipe) => {
+    if (recipe.reviews.length === 0) return 0;
+    const sum = recipe.reviews.reduce(
+      (total, review) => total + review.rating,
+      0
+    );
+    return sum / recipe.reviews.length;
+  };
+
   return (
     <>
       <section className="py-16 bg-white">
@@ -58,6 +67,40 @@ const RecipeCarousel: FC<RecipeCarouselProps> = ({ recipes, hasRecipes }) => {
                         {recipes[currentRecipe]?.instructions.substring(0, 120)}
                         ...
                       </p>
+                      <div className="flex items-center">
+                        <div className="flex mr-2">
+                          {[1, 2, 3, 4, 5].map((star) => {
+                            const averageRating = calculateAverageRating(
+                              recipes[currentRecipe]
+                            );
+                            return (
+                              <Icon
+                                key={star}
+                                icon={
+                                  star <= Math.round(averageRating)
+                                    ? "solar:star-bold"
+                                    : "solar:star-linear"
+                                }
+                                className={`h-5 w-5 ${
+                                  star <= Math.round(averageRating)
+                                    ? "text-yellow-400"
+                                    : "text-gray-300"
+                                }`}
+                              />
+                            );
+                          })}
+                        </div>
+                        <span className="text-sm text-gray-500">
+                          {calculateAverageRating(
+                            recipes[currentRecipe]
+                          ).toFixed(1)}{" "}
+                          ({recipes[currentRecipe]?.reviews.length}{" "}
+                          {recipes[currentRecipe]?.reviews.length === 1
+                            ? "Bewertung"
+                            : "Bewertungen"}
+                          )
+                        </span>
+                      </div>
                       <div className="space-y-4">
                         <h4 className="text-xl font-semibold text-gray-800">
                           Zutaten:
