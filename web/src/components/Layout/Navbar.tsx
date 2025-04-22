@@ -25,18 +25,21 @@ import clsx from "clsx";
 import AuthModal, { AuthVariant } from "../UI/AuthModal";
 import { userStore } from "@/data/userStore";
 import { toast } from "sonner";
+import CreateRecipeModal from "../Recipes/CreateRecipeModal";
 
 const NavbarLayout = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isRecipeModalOpen, setIsRecipeModalOpen] = useState(false);
   const [authVariant, setAuthVariant] = useState<AuthVariant>("LOGIN");
+
   const { user, isLoggedIn, logout } = userStore();
   const pathname = usePathname();
 
   const menuItems = [
     { name: "Startseite", href: "/" },
     { name: "Rezepte", href: "/recipes" },
-    { name: "Erstellen", href: "/erstellen" },
+    { name: "Erstellen", href: "#" },
     { name: "Anmelden", href: "#" },
     { name: "Registrieren", href: "#" },
   ];
@@ -46,6 +49,15 @@ const NavbarLayout = () => {
   const handleOpenAuthModal = (variant: AuthVariant) => {
     setAuthVariant(variant);
     setIsAuthModalOpen(true);
+  };
+
+  const handleOpenRecipeModal = () => {
+    if (isLoggedIn) {
+      setIsRecipeModalOpen(true);
+    } else {
+      toast.info("Bitte melde dich an, um ein Rezept zu erstellen.");
+      handleOpenAuthModal("LOGIN");
+    }
   };
 
   return (
@@ -80,19 +92,33 @@ const NavbarLayout = () => {
         <NavbarContent className="hidden md:flex gap-6" justify="center">
           {navItemsLeft.map((item, index) => {
             const isActive = pathname === item.href;
+            const isCreate = item.name === "Erstellen";
+
             return (
               <NavbarItem key={`${item.name}-${index}`}>
-                <Link
-                  href={item.href}
-                  className={clsx(
-                    "font-medium transition-colors",
-                    isActive
-                      ? "text-emerald-600"
-                      : "text-gray-600 hover:text-emerald-600"
-                  )}
-                >
-                  {item.name}
-                </Link>
+                {isCreate ? (
+                  <button
+                    onClick={handleOpenRecipeModal}
+                    className={clsx(
+                      "font-medium transition-colors",
+                      "text-gray-600 hover:text-emerald-600"
+                    )}
+                  >
+                    {item.name}
+                  </button>
+                ) : (
+                  <Link
+                    href={item.href}
+                    className={clsx(
+                      "font-medium transition-colors",
+                      isActive
+                        ? "text-emerald-600"
+                        : "text-gray-600 hover:text-emerald-600"
+                    )}
+                  >
+                    {item.name}
+                  </Link>
+                )}
               </NavbarItem>
             );
           })}
@@ -111,7 +137,7 @@ const NavbarLayout = () => {
               </DropdownTrigger>
               <DropdownMenu aria-label="User Actions" variant="flat">
                 <DropdownSection showDivider>
-                  <DropdownItem key="" color="primary">
+                  <DropdownItem key="profile" color="primary">
                     <Link href="/profil" className="flex items-center gap-2">
                       <Icon icon="solar:user-bold" className="text-xl" />
                       Profil
@@ -174,12 +200,25 @@ const NavbarLayout = () => {
             .map((item, index) => {
               const isActive = pathname === item.href;
 
+              if (item.name === "Erstellen") {
+                return (
+                  <NavbarMenuItem key="mobile-create">
+                    <button
+                      onClick={handleOpenRecipeModal}
+                      className="w-full block py-2 text-lg text-left text-emerald-600 font-semibold"
+                    >
+                      Rezept erstellen
+                    </button>
+                  </NavbarMenuItem>
+                );
+              }
+
               if (!isLoggedIn && item.name === "Anmelden") {
                 return (
                   <NavbarMenuItem key="mobile-login">
                     <button
                       onClick={() => handleOpenAuthModal("LOGIN")}
-                      className="w-full block py-2 text-lg text-gray-700 text-left"
+                      className="w-full block py-2 text-lg text-left"
                     >
                       Anmelden
                     </button>
@@ -218,11 +257,17 @@ const NavbarLayout = () => {
             })}
         </NavbarMenu>
       </Navbar>
+
+      {/* Modals */}
       <AuthModal
         isOpen={isAuthModalOpen}
         onOpenChange={() => setIsAuthModalOpen(!isAuthModalOpen)}
         variant={authVariant}
         onVariantChange={setAuthVariant}
+      />
+      <CreateRecipeModal
+        isOpen={isRecipeModalOpen}
+        onOpenChange={setIsRecipeModalOpen}
       />
     </>
   );

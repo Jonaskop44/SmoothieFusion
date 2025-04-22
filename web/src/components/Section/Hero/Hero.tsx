@@ -9,11 +9,23 @@ import CreateRecipeModal from "@/components/Recipes/CreateRecipeModal";
 import { useState } from "react";
 import { userStore } from "@/data/userStore";
 import { toast } from "sonner";
+import AuthModal, { AuthVariant } from "@/components/UI/AuthModal";
 
 const Hero = () => {
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authVariant, setAuthVariant] = useState<AuthVariant>("LOGIN");
   const { isLoggedIn } = userStore();
+
+  const handleCreateRecipe = () => {
+    if (!isLoggedIn) {
+      setIsAuthModalOpen(true);
+      toast.info("Bitte melde dich an, um ein Rezept zu erstellen.");
+      return;
+    }
+    setIsModalOpen(true);
+  };
 
   return (
     <>
@@ -39,13 +51,7 @@ const Hero = () => {
               </p>
               <div className="flex flex-col sm:flex-row justify-center md:justify-start space-y-3 sm:space-y-0 sm:space-x-3 pt-2">
                 <Button
-                  onPress={() => {
-                    if (!isLoggedIn) {
-                      toast.error("Bitte zuerst einloggen");
-                      return;
-                    }
-                    setIsModalOpen(true);
-                  }}
+                  onPress={handleCreateRecipe}
                   color="primary"
                   className="bg-emerald-600 hover:bg-emerald-700 text-base md:text-lg h-12 md:h-14 px-6 md:px-8"
                 >
@@ -80,6 +86,13 @@ const Hero = () => {
           </motion.div>
         </div>
       </section>
+
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onOpenChange={() => setIsAuthModalOpen(!isAuthModalOpen)}
+        variant={authVariant}
+        onVariantChange={setAuthVariant}
+      />
       <CreateRecipeModal isOpen={isModalOpen} onOpenChange={setIsModalOpen} />
     </>
   );
