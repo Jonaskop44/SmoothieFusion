@@ -16,13 +16,13 @@ import type { Recipe } from "@/types/recipe";
 import { FC } from "react";
 import { BACKEND_URL } from "@/lib/config";
 
-interface RecipeModalProps {
+interface RecipeDetailsModalProps {
   recipe: Recipe;
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
 }
 
-const RecipeModal: FC<RecipeModalProps> = ({
+const RecipeDetailsModal: FC<RecipeDetailsModalProps> = ({
   recipe,
   isOpen,
   onOpenChange,
@@ -218,4 +218,4 @@ const RecipeModal: FC<RecipeModalProps> = ({
   );
 };
 
-export default RecipeModal;
+export default RecipeDetailsModal;

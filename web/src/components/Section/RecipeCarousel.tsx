@@ -8,7 +8,7 @@ import { Button, Pagination } from "@heroui/react";
 import type { Recipe } from "@/types/recipe";
 import EmptyRecipeState from "@/components/UI/EmptyRecipeState";
 import { BACKEND_URL } from "@/lib/config";
-import RecipeModal from "../Recipes/RecipeModal";
+import RecipeModal from "../Recipes/RecipeDetailsModal";
 
 interface RecipeCarouselProps {
   recipes: Recipe[];

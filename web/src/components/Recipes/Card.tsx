@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Icon } from "@iconify/react";
 import { Card, CardHeader, CardBody, CardFooter, Button } from "@heroui/react";
 import type { Recipe } from "@/types/recipe";
-import RecipeModal from "./RecipeModal";
+import RecipeModal from "./RecipeDetailsModal";
 import { BACKEND_URL } from "@/lib/config";
 
 interface RecipeCardProps {

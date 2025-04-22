@@ -124,8 +124,8 @@ const RecipesPage = () => {
                 Smoothie-Rezepte
               </h1>
               <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-                Entdecke köstliche und gesunde Smoothie-Rezepte für jeden
-                Geschmack und jede Gelegenheit.
+                Entdecke mehr als {recipes.length} köstliche und gesunde
+                Smoothie-Rezepte für jeden Geschmack und jede Gelegenheit.
               </p>
             </div>
 
