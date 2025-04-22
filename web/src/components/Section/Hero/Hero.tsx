@@ -7,10 +7,13 @@ import { containerVariants, itemVariants } from "./animations";
 import { useRouter } from "next/navigation";
 import CreateRecipeModal from "@/components/Recipes/CreateRecipeModal";
 import { useState } from "react";
+import { userStore } from "@/data/userStore";
+import { toast } from "sonner";
 
 const Hero = () => {
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { isLoggedIn } = userStore();
 
   return (
     <>
@@ -36,7 +39,13 @@ const Hero = () => {
               </p>
               <div className="flex flex-col sm:flex-row justify-center md:justify-start space-y-3 sm:space-y-0 sm:space-x-3 pt-2">
                 <Button
-                  onPress={() => setIsModalOpen(true)}
+                  onPress={() => {
+                    if (!isLoggedIn) {
+                      toast.error("Bitte zuerst einloggen");
+                      return;
+                    }
+                    setIsModalOpen(true);
+                  }}
                   color="primary"
                   className="bg-emerald-600 hover:bg-emerald-700 text-base md:text-lg h-12 md:h-14 px-6 md:px-8"
                 >
