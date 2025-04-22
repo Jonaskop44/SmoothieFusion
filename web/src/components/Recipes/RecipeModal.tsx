@@ -27,7 +27,6 @@ const RecipeModal: FC<RecipeModalProps> = ({
   isOpen,
   onOpenChange,
 }) => {
-  // Funktion zum Formatieren des Datums
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return new Intl.DateTimeFormat("de-DE", {
@@ -37,7 +36,6 @@ const RecipeModal: FC<RecipeModalProps> = ({
     }).format(date);
   };
 
-  // Durchschnittliche Bewertung berechnen
   const calculateAverageRating = () => {
     if (recipe.reviews.length === 0) return 0;
     const sum = recipe.reviews.reduce(
