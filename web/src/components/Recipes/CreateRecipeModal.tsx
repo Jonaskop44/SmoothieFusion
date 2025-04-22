@@ -15,17 +15,15 @@ import {
   Select,
   SelectItem,
 } from "@heroui/react";
-import type { Recipe, Ingredient } from "@/types/recipe";
+import type { Ingredient } from "@/types/recipe";
 import { Unit } from "@/types/recipe";
-import { userStore } from "@/data/userStore";
-import ApiClient from "@/api";
+import { toast } from "sonner";
+import { recipeStore } from "@/data/recipeStore";
 
 interface CreateRecipeModalProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
 }
-
-const apiClient = new ApiClient();
 
 const CreateRecipeModal: FC<CreateRecipeModalProps> = ({
   isOpen,
@@ -34,6 +32,7 @@ const CreateRecipeModal: FC<CreateRecipeModalProps> = ({
   const [name, setName] = useState("");
   const [instructions, setInstructions] = useState("");
   const [image, setImage] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [ingredients, setIngredients] = useState<Omit<Ingredient, "id">[]>([]);
   const [isValid, setIsValid] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -42,7 +41,7 @@ const CreateRecipeModal: FC<CreateRecipeModalProps> = ({
     amount: 0,
     unit: Unit.PIECE,
   });
-  const { user, isLoggedIn } = userStore();
+  const { createRecipe } = recipeStore();
 
   const unitOptions = [
     { value: Unit.PIECE, label: "Stück" },
@@ -57,17 +56,12 @@ const CreateRecipeModal: FC<CreateRecipeModalProps> = ({
   useEffect(() => {
     const newErrors: Record<string, string> = {};
 
-    if (!name.trim()) {
+    if (!name.trim())
       newErrors.name = "Bitte gib einen Namen für das Rezept ein";
-    }
-
-    if (!instructions.trim()) {
+    if (!instructions.trim())
       newErrors.instructions = "Bitte gib eine Anleitung für das Rezept ein";
-    }
-
-    if (ingredients.length === 0) {
+    if (ingredients.length === 0)
       newErrors.ingredients = "Bitte füge mindestens eine Zutat hinzu";
-    }
 
     setErrors(newErrors);
     setIsValid(Object.keys(newErrors).length === 0);
@@ -77,26 +71,17 @@ const CreateRecipeModal: FC<CreateRecipeModalProps> = ({
     setName("");
     setInstructions("");
     setImage("");
+    setImageFile(null);
     setIngredients([]);
-    setTempIngredient({
-      name: "",
-      amount: 0,
-      unit: Unit.PIECE,
-    });
+    setTempIngredient({ name: "", amount: 0, unit: Unit.PIECE });
     setErrors({});
   };
 
   const addIngredient = () => {
-    if (!tempIngredient.name.trim() || tempIngredient.amount <= 0) {
-      return;
-    }
+    if (!tempIngredient.name.trim() || tempIngredient.amount <= 0) return;
 
     setIngredients([...ingredients, { ...tempIngredient }]);
-    setTempIngredient({
-      name: "",
-      amount: 0,
-      unit: Unit.PIECE,
-    });
+    setTempIngredient({ name: "", amount: 0, unit: Unit.PIECE });
   };
 
   const removeIngredient = (index: number) => {
@@ -105,25 +90,38 @@ const CreateRecipeModal: FC<CreateRecipeModalProps> = ({
     setIngredients(newIngredients);
   };
 
-  const handleSave = () => {
-    if (!isValid) return;
-
-    const newRecipe: Omit<
-      Recipe,
-      "id" | "reviews" | "created_at" | "updated_at"
-    > = {
-      name,
-      instructions,
-      image,
-      author: user.id,
-      ingredients: ingredients.map((ingredient, index) => ({
-        ...ingredient,
-        id: index + 1,
-      })),
+  const handleImageUpload = () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    input.onchange = () => {
+      const file = input.files?.[0];
+      if (file) {
+        setImageFile(file);
+        const imageUrl = URL.createObjectURL(file);
+        setImage(imageUrl);
+      }
     };
+    input.click();
+  };
 
-    resetForm();
-    onOpenChange(false);
+  const handleSave = async () => {
+    if (!isValid || !imageFile) return;
+
+    const newIngredients = ingredients.map((ingredient, index) => ({
+      ...ingredient,
+      id: index + 1,
+    }));
+
+    try {
+      createRecipe(imageFile, name, instructions, newIngredients);
+      resetForm();
+      onOpenChange(false);
+      toast.success("Rezept erfolgreich erstellt!");
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      toast.error("Fehler beim Erstellen des Rezepts");
+    }
   };
 
   return (
@@ -176,15 +174,17 @@ const CreateRecipeModal: FC<CreateRecipeModalProps> = ({
                     Rezeptbild
                   </label>
                   <div className="flex flex-col items-center p-4 border-2 border-dashed border-gray-300 rounded-lg">
-                    <div className="relative h-48 w-full mb-4">
-                      <Image
-                        src={image}
-                        alt="Rezeptbild"
-                        fill
-                        className="object-cover rounded-lg"
-                        sizes="(max-width: 768px) 100vw, 50vw"
-                      />
-                    </div>
+                    {image && (
+                      <div className="relative h-48 w-full mb-4">
+                        <Image
+                          src={image}
+                          alt="Rezeptbild"
+                          fill
+                          className="object-cover rounded-lg"
+                          sizes="(max-width: 768px) 100vw, 50vw"
+                        />
+                      </div>
+                    )}
                     <Button
                       color="primary"
                       variant="flat"
@@ -343,7 +343,7 @@ const CreateRecipeModal: FC<CreateRecipeModalProps> = ({
                 color="primary"
                 className="bg-emerald-600 hover:bg-emerald-700"
                 onPress={handleSave}
-                isDisabled={!isValid}
+                isDisabled={!isValid || !imageFile}
               >
                 Rezept speichern
               </Button>
