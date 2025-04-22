@@ -7,9 +7,11 @@ import { useState } from "react";
 import { userStore } from "@/data/userStore";
 import AuthModal, { AuthVariant } from "../UI/AuthModal";
 import { toast } from "sonner";
+import CreateRecipeModal from "../Recipes/CreateRecipeModal";
 
 const EmptyRecipeState = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isCreateRecipeModalOpen, setIsCreateRecipeModalOpen] = useState(false);
   const [authVariant, setAuthVariant] = useState<AuthVariant>("LOGIN");
   const { isLoggedIn } = userStore();
 
@@ -19,6 +21,7 @@ const EmptyRecipeState = () => {
       toast.info("Bitte melde dich an, um ein Rezept zu erstellen.");
       return;
     }
+    setIsCreateRecipeModalOpen(true);
   };
 
   return (
@@ -55,6 +58,10 @@ const EmptyRecipeState = () => {
         onOpenChange={() => setIsAuthModalOpen(!isAuthModalOpen)}
         variant={authVariant}
         onVariantChange={setAuthVariant}
+      />
+      <CreateRecipeModal
+        isOpen={isCreateRecipeModalOpen}
+        onOpenChange={setIsCreateRecipeModalOpen}
       />
     </>
   );
