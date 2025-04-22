@@ -13,6 +13,16 @@ const RecipesPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedIngredients, setSelectedIngredients] = useState<string[]>([]);
   const [selectedUnits, setSelectedUnits] = useState<Unit[]>([]);
+  const [selectedRating, setSelectedRating] = useState<number | null>(null);
+
+  const calculateAverageRating = (recipe: Recipe) => {
+    if (recipe.reviews.length === 0) return 0;
+    const sum = recipe.reviews.reduce(
+      (total, review) => total + review.rating,
+      0
+    );
+    return sum / recipe.reviews.length;
+  };
 
   useEffect(() => {
     let result = [...recipes];
@@ -47,8 +57,21 @@ const RecipesPage = () => {
       );
     }
 
+    if (selectedRating !== null) {
+      result = result.filter((recipe) => {
+        const averageRating = calculateAverageRating(recipe);
+        return averageRating >= selectedRating;
+      });
+    }
+
     setFilteredRecipes(result);
-  }, [recipes, searchQuery, selectedIngredients, selectedUnits]);
+  }, [
+    recipes,
+    searchQuery,
+    selectedIngredients,
+    selectedUnits,
+    selectedRating,
+  ]);
 
   const getAllIngredients = () => {
     const ingredientSet = new Set<string>();
@@ -78,10 +101,15 @@ const RecipesPage = () => {
     );
   };
 
+  const handleRatingChange = (rating: number | null) => {
+    setSelectedRating(rating);
+  };
+
   const clearFilters = () => {
     setSearchQuery("");
     setSelectedIngredients([]);
     setSelectedUnits([]);
+    setSelectedRating(null);
   };
 
   const allIngredients = getAllIngredients();
@@ -113,6 +141,8 @@ const RecipesPage = () => {
                   onIngredientToggle={handleIngredientToggle}
                   selectedUnits={selectedUnits}
                   onUnitToggle={handleUnitToggle}
+                  selectedRating={selectedRating}
+                  onRatingChange={handleRatingChange}
                   onClearFilters={clearFilters}
                 />
               </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, useState } from "react";
+import { type FC, useState } from "react";
 import { Icon } from "@iconify/react";
 import {
   Checkbox,
@@ -8,6 +8,8 @@ import {
   Input,
   Accordion,
   AccordionItem,
+  RadioGroup,
+  Radio,
 } from "@heroui/react";
 import { Unit } from "@/types/recipe";
 
@@ -18,6 +20,8 @@ interface RecipeFiltersProps {
   onClearFilters: () => void;
   selectedUnits: Unit[];
   onUnitToggle: (unit: Unit) => void;
+  selectedRating: number | null;
+  onRatingChange: (rating: number | null) => void;
 }
 
 const RecipeFilters: FC<RecipeFiltersProps> = ({
@@ -27,9 +31,14 @@ const RecipeFilters: FC<RecipeFiltersProps> = ({
   onClearFilters,
   selectedUnits,
   onUnitToggle,
+  selectedRating,
+  onRatingChange,
 }) => {
   const hasSelectedFilters =
-    selectedIngredients.length > 0 || selectedUnits.length > 0;
+    selectedIngredients.length > 0 ||
+    selectedUnits.length > 0 ||
+    selectedRating !== null;
+
   const [searchIngredient, setSearchIngredient] = useState("");
 
   const filteredIngredients = ingredients.filter((ingredient) =>
@@ -44,6 +53,19 @@ const RecipeFilters: FC<RecipeFiltersProps> = ({
     [Unit.LITER]: "Liter",
     [Unit.TEASPOON]: "Teelöffel",
     [Unit.TABLESPOON]: "Esslöffel",
+  };
+
+  const ratingOptions = [
+    { value: 5, label: "5 Sterne" },
+    { value: 4, label: "4+ Sterne" },
+    { value: 3, label: "3+ Sterne" },
+    { value: 2, label: "2+ Sterne" },
+    { value: 1, label: "1+ Stern" },
+  ];
+
+  const handleRatingChange = (value: string) => {
+    const rating = Number.parseInt(value, 10);
+    onRatingChange(rating === selectedRating ? null : rating);
   };
 
   return (
@@ -124,7 +146,53 @@ const RecipeFilters: FC<RecipeFiltersProps> = ({
             )}
           </div>
         </AccordionItem>
-
+        <AccordionItem
+          key="rating"
+          aria-label="Bewertung"
+          title={
+            <div className="flex items-center">
+              <Icon
+                icon="solar:star-bold"
+                className="mr-2 h-5 w-5 text-yellow-400"
+              />
+              <span className="font-medium">Bewertung</span>
+            </div>
+          }
+          subtitle={selectedRating ? `${selectedRating}+ Sterne` : undefined}
+          className="px-0"
+        >
+          <RadioGroup
+            value={selectedRating?.toString() || ""}
+            onValueChange={handleRatingChange}
+            orientation="vertical"
+            color="primary"
+          >
+            {ratingOptions.map((option) => (
+              <Radio key={option.value} value={option.value.toString()}>
+                <div className="flex items-center">
+                  <div className="flex mr-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Icon
+                        key={star}
+                        icon={
+                          star <= option.value
+                            ? "solar:star-bold"
+                            : "solar:star-linear"
+                        }
+                        className={`h-4 w-4 ${
+                          star <= option.value
+                            ? "text-yellow-400"
+                            : "text-gray-300"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-sm">{option.label}</span>
+                </div>
+              </Radio>
+            ))}
+          </RadioGroup>
+        </AccordionItem>
         <AccordionItem
           key="units"
           aria-label="Einheiten"
@@ -166,7 +234,7 @@ const RecipeFilters: FC<RecipeFiltersProps> = ({
       <div className="pt-4 mt-4 border-t border-gray-100">
         <div className="flex items-center text-sm text-gray-500">
           <Icon icon="solar:info-circle-bold" className="mr-2 h-4 w-4" />
-          <p>Wähle Zutaten oder Einheiten, um die Rezepte zu filtern</p>
+          <p>Wähle Filter, um passende Rezepte zu finden</p>
         </div>
       </div>
     </div>

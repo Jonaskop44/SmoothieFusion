@@ -18,7 +18,10 @@ const RecipeSearch: FC<RecipeSearchProps> = ({ onSearch, searchQuery }) => {
         value={searchQuery}
         onChange={(e) => onSearch(e.target.value)}
         startContent={
-          <Icon icon="solar:magnifer-bold" className="text-gray-400 h-5 w-5" />
+          <Icon
+            icon="solar:magnifer-linear"
+            className="text-gray-400 h-5 w-5"
+          />
         }
         endContent={
           searchQuery && (
