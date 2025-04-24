@@ -8,7 +8,7 @@ import {
   Checkbox,
   Input,
 } from "@heroui/react";
-import { FC, useState } from "react";
+import { FC, useState, useEffect } from "react";
 import { Icon } from "@iconify/react";
 import ApiClient from "@/api";
 import { toast } from "sonner";
@@ -40,6 +40,13 @@ const AuthModal: FC<AuthModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const { setUser } = userStore();
 
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({
+    username: false,
+    email: false,
+    password: false,
+  });
+
   const isLogin = variant === "LOGIN";
   const title = isLogin ? "Anmelden" : "Registrieren";
   const buttonText = isLoading
@@ -50,19 +57,96 @@ const AuthModal: FC<AuthModalProps> = ({
   const toggleText = isLogin ? "Noch kein Konto?" : "Bereits ein Konto?";
   const toggleAction = isLogin ? "Registrieren" : "Anmelden";
 
-  const handleToggleVariant = () => {
-    onVariantChange(isLogin ? "SIGNUP" : "LOGIN");
+  useEffect(() => {
+    resetForm();
+  }, [variant, isOpen]);
+
+  useEffect(() => {
+    if (Object.values(touched).some(Boolean)) {
+      validateForm();
+    }
+  }, [data, touched, isLogin]);
+
+  const resetForm = () => {
     setData({
       username: "",
       email: "",
       password: "",
       rememberMe: false,
     });
+    setErrors({});
+    setTouched({
+      username: false,
+      email: false,
+      password: false,
+    });
+  };
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    if (!isLogin) {
+      if (touched.username && !data.username) {
+        newErrors.username = "Benutzername ist erforderlich";
+      }
+
+      if (touched.password && data.password) {
+        if (data.password.length < 8) {
+          newErrors.password = "Passwort muss mindestens 8 Zeichen lang sein";
+        } else if (!/[A-Z]/.test(data.password)) {
+          newErrors.password =
+            "Passwort muss mindestens einen Großbuchstaben enthalten";
+        } else if (!/[a-z]/.test(data.password)) {
+          newErrors.password =
+            "Passwort muss mindestens einen Kleinbuchstaben enthalten";
+        } else if (!/[0-9]/.test(data.password)) {
+          newErrors.password = "Passwort muss mindestens eine Ziffer enthalten";
+        } else if (!/[\W_]/.test(data.password)) {
+          newErrors.password =
+            "Passwort muss mindestens ein Sonderzeichen enthalten";
+        }
+      }
+    }
+
+    if (touched.email && !data.email) {
+      newErrors.email = "E-Mail ist erforderlich";
+    } else if (touched.email && !/\S+@\S+\.\S+/.test(data.email)) {
+      newErrors.email = "Bitte gib eine gültige E-Mail-Adresse ein";
+    }
+
+    if (touched.password && !data.password) {
+      newErrors.password = "Passwort ist erforderlich";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleToggleVariant = () => {
+    onVariantChange(isLogin ? "SIGNUP" : "LOGIN");
+    resetForm();
+  };
+
+  const handleBlur = (field: string) => {
+    setTouched({ ...touched, [field]: true });
   };
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
+
+    const allTouched = Object.keys(touched).reduce((acc, key) => {
+      acc[key] = true;
+      return acc;
+    }, {} as Record<string, boolean>);
+
+    setTouched(allTouched);
+    const isValid = validateForm();
+
+    if (!isValid) {
+      return;
+    }
+
     setIsLoading(true);
+
     if (isLogin) {
       apiClient.auth.helper
         .login(data)
@@ -80,15 +164,15 @@ const AuthModal: FC<AuthModalProps> = ({
                 expires: 7,
               });
             }
-            setData({
-              username: "",
-              email: "",
-              password: "",
-              rememberMe: false,
-            });
+            resetForm();
           } else {
             toast.error("Ihr Passwort oder Ihre E-Mail-Adresse ist falsch.");
           }
+        })
+        .catch(() => {
+          toast.error(
+            "Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut."
+          );
         })
         .finally(() => {
           setIsLoading(false);
@@ -99,12 +183,7 @@ const AuthModal: FC<AuthModalProps> = ({
         .then((response) => {
           if (response.status) {
             toast.success("Erfolgreich registriert! Melden Sie sich an.");
-            setData({
-              username: "",
-              email: "",
-              password: "",
-              rememberMe: false,
-            });
+            resetForm();
             onVariantChange("LOGIN");
           } else {
             toast.error(
@@ -112,11 +191,25 @@ const AuthModal: FC<AuthModalProps> = ({
             );
           }
         })
+        .catch(() => {
+          toast.error(
+            "Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut."
+          );
+        })
         .finally(() => {
           setIsLoading(false);
         });
     }
   };
+
+  const isSubmitDisabled =
+    isLoading ||
+    (!isLogin &&
+      (!data.username ||
+        !data.email ||
+        !data.password ||
+        Object.keys(errors).length > 0)) ||
+    (isLogin && (!data.email || !data.password));
 
   return (
     <>
@@ -149,6 +242,11 @@ const AuthModal: FC<AuthModalProps> = ({
                       onChange={(e) =>
                         setData({ ...data, username: e.target.value })
                       }
+                      onBlur={() => handleBlur("username")}
+                      isDisabled={isLoading}
+                      isInvalid={!!errors.username}
+                      errorMessage={errors.username}
+                      isRequired
                     />
                   )}
                   <Input
@@ -165,6 +263,11 @@ const AuthModal: FC<AuthModalProps> = ({
                     onChange={(e) =>
                       setData({ ...data, email: e.target.value })
                     }
+                    onBlur={() => handleBlur("email")}
+                    isDisabled={isLoading}
+                    isInvalid={!!errors.email}
+                    errorMessage={errors.email}
+                    isRequired
                   />
                   <Input
                     endContent={
@@ -181,13 +284,33 @@ const AuthModal: FC<AuthModalProps> = ({
                     onChange={(e) =>
                       setData({ ...data, password: e.target.value })
                     }
+                    onBlur={() => handleBlur("password")}
+                    isDisabled={isLoading}
+                    isInvalid={!!errors.password}
+                    errorMessage={errors.password}
+                    isRequired
                   />
+                  {!isLogin && (
+                    <div className="bg-blue-50 p-3 rounded-md text-xs text-blue-700">
+                      <p className="font-medium mb-1">
+                        Passwort-Anforderungen:
+                      </p>
+                      <ul className="list-disc pl-4 space-y-1">
+                        <li>Mindestens 8 Zeichen</li>
+                        <li>Mindestens ein Großbuchstabe (A-Z)</li>
+                        <li>Mindestens ein Kleinbuchstabe (a-z)</li>
+                        <li>Mindestens eine Ziffer (0-9)</li>
+                        <li>Mindestens ein Sonderzeichen (!@#$%^&*...)</li>
+                      </ul>
+                    </div>
+                  )}
                   <div className="flex py-2 px-1 justify-between">
                     <Checkbox
                       isSelected={data.rememberMe}
                       onValueChange={(value) => {
                         setData({ ...data, rememberMe: value });
                       }}
+                      isDisabled={isLoading}
                     >
                       Angemeldet bleiben
                     </Checkbox>
@@ -199,6 +322,7 @@ const AuthModal: FC<AuthModalProps> = ({
                     color="primary"
                     className="w-full bg-emerald-600 hover:bg-emerald-700"
                     isLoading={isLoading}
+                    isDisabled={isSubmitDisabled}
                   >
                     {buttonText}
                   </Button>
@@ -208,6 +332,7 @@ const AuthModal: FC<AuthModalProps> = ({
                       variant="light"
                       className="p-0 text-emerald-600 font-semibold"
                       onPress={handleToggleVariant}
+                      isDisabled={isLoading}
                     >
                       {toggleAction}
                     </Button>
