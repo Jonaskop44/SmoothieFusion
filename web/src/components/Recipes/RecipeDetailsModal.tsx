@@ -85,13 +85,23 @@ const RecipeDetailsModal: FC<RecipeDetailsModalProps> = ({
                 </div>
               </ModalHeader>
               <ModalBody>
-                <div className="relative h-64 w-full mb-6">
+                {/* <div className="relative h-64 w-full mb-6">
                   <Image
                     src={`${BACKEND_URL}${recipe.image}`}
                     alt={recipe.name}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     className="object-cover rounded-lg"
+                  />
+                </div> */}
+                <div className="w-full mb-6 flex justify-center">
+                  <Image
+                    src={`${BACKEND_URL}${recipe.image}`}
+                    alt={recipe.name}
+                    layout="intrinsic"
+                    width={800}
+                    height={600}
+                    className="rounded-lg"
                   />
                 </div>
 
