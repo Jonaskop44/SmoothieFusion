@@ -14,6 +14,7 @@ import ApiClient from "@/api";
 import { toast } from "sonner";
 import Cookies from "js-cookie";
 import { userStore } from "@/data/userStore";
+import axios from "axios";
 
 export type AuthVariant = "LOGIN" | "SIGNUP";
 interface AuthModalProps {
@@ -164,6 +165,11 @@ const AuthModal: FC<AuthModalProps> = ({
                 expires: 7,
               });
             }
+
+            const accessToken = Cookies.get("accessToken");
+            axios.defaults.headers.common[
+              "Authorization"
+            ] = `Bearer ${accessToken}`;
             resetForm();
           } else {
             toast.error("Ihr Passwort oder Ihre E-Mail-Adresse ist falsch.");
