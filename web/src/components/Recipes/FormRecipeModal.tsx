@@ -15,19 +15,22 @@ import {
   Select,
   SelectItem,
 } from "@heroui/react";
-import type { Ingredient } from "@/types/recipe";
+import type { Ingredient, Recipe } from "@/types/recipe";
 import { Unit } from "@/types/recipe";
 import { toast } from "sonner";
 import { recipeStore } from "@/data/recipeStore";
+import { BACKEND_URL } from "@/lib/config";
 
 interface FormRecipeModalProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
+  recipe?: Recipe;
 }
 
 const FormRecipeModal: FC<FormRecipeModalProps> = ({
   isOpen,
   onOpenChange,
+  recipe,
 }) => {
   const [name, setName] = useState("");
   const [instructions, setInstructions] = useState("");
@@ -41,7 +44,8 @@ const FormRecipeModal: FC<FormRecipeModalProps> = ({
     amount: 0,
     unit: Unit.PIECE,
   });
-  const { createRecipe } = recipeStore();
+  const { createRecipe, updateRecipe } = recipeStore();
+  const isEditMode = !!recipe;
 
   const unitOptions = [
     { value: Unit.PIECE, label: "Stück" },
@@ -52,6 +56,19 @@ const FormRecipeModal: FC<FormRecipeModalProps> = ({
     { value: Unit.TEASPOON, label: "Teelöffel (TL)" },
     { value: Unit.TABLESPOON, label: "Esslöffel (EL)" },
   ];
+
+  useEffect(() => {
+    if (isOpen) {
+      if (isEditMode && recipe) {
+        setName(recipe.name);
+        setInstructions(recipe.instructions);
+        setImage(`${BACKEND_URL}${recipe.image}`);
+        setIngredients([...recipe.ingredients]);
+      } else {
+        resetForm();
+      }
+    }
+  }, [isOpen, isEditMode, recipe]);
 
   useEffect(() => {
     const newErrors: Record<string, string> = {};
@@ -105,22 +122,58 @@ const FormRecipeModal: FC<FormRecipeModalProps> = ({
     input.click();
   };
 
-  const handleSave = async () => {
-    if (!isValid || !imageFile) return;
+  const handleSave = () => {
+    if (!isValid) return;
 
     const newIngredients = ingredients.map((ingredient, index) => ({
       ...ingredient,
       id: index + 1,
     }));
 
-    try {
-      createRecipe(imageFile, name, instructions, newIngredients);
-      resetForm();
-      onOpenChange(false);
-      toast.success("Rezept erfolgreich erstellt!");
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      toast.error("Fehler beim Erstellen des Rezepts");
+    if (isEditMode && recipe) {
+      updateRecipe(
+        recipe.id,
+        imageFile ?? undefined,
+        name,
+        instructions,
+        newIngredients
+      )
+        .then((response) => {
+          if (response.status) {
+            resetForm();
+            onOpenChange(false);
+            toast.success("Rezept erfolgreich aktualisiert!");
+          } else {
+            toast.error(
+              "Fehler beim Aktualisieren des Rezepts, überprüfe deine Eingaben"
+            );
+          }
+        })
+        .catch(() => {
+          toast.error(
+            "Fehler beim Aktualisieren des Rezepts, überprüfe deine Eingaben"
+          );
+        });
+    } else {
+      if (!imageFile) return;
+
+      createRecipe(imageFile, name, instructions, newIngredients)
+        .then((response) => {
+          if (response.status) {
+            resetForm();
+            onOpenChange(false);
+            toast.success("Rezept erfolgreich erstellt!");
+          } else {
+            toast.error(
+              "Fehler beim Erstellen des Rezepts, überprüfe deine Eingaben"
+            );
+          }
+        })
+        .catch(() => {
+          toast.error(
+            "Fehler beim Erstellen des Rezepts, überprüfe deine Eingaben"
+          );
+        });
     }
   };
 
@@ -343,7 +396,7 @@ const FormRecipeModal: FC<FormRecipeModalProps> = ({
                 color="primary"
                 className="bg-emerald-600 hover:bg-emerald-700"
                 onPress={handleSave}
-                isDisabled={!isValid || !imageFile}
+                isDisabled={!isValid || (!imageFile && !isEditMode)}
               >
                 Rezept speichern
               </Button>

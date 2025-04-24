@@ -1,4 +1,5 @@
-import { Ingredient } from "@/types/recipe";
+import { ApiResponse } from "@/types/api";
+import { Ingredient, Recipe } from "@/types/recipe";
 import axios from "axios";
 
 export class Helper {
@@ -37,7 +38,7 @@ export class Helper {
     name: string,
     instructions: string,
     ingredients: Ingredient[]
-  ) {
+  ): Promise<ApiResponse<Recipe>> {
     const formData = new FormData();
     formData.append("image", image);
     formData.append("name", name);
@@ -67,7 +68,7 @@ export class Helper {
     name?: string,
     instructions?: string,
     ingredients?: Ingredient[]
-  ) {
+  ): Promise<ApiResponse<Recipe>> {
     const formData = new FormData();
     if (image) formData.append("image", image);
     if (name) formData.append("name", name);

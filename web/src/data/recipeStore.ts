@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import ApiClient from "@/api";
 import { Ingredient, Recipe } from "@/types/recipe";
+import { ApiResponse } from "@/types/api";
 
 interface RecipeState {
   recipes: Recipe[];
@@ -11,14 +12,14 @@ interface RecipeState {
     name: string,
     instructions: string,
     ingredients: Ingredient[]
-  ) => void;
+  ) => Promise<ApiResponse<Recipe>>;
   updateRecipe: (
     id: number,
     image?: File,
     name?: string,
     instructions?: string,
     ingredients?: Ingredient[]
-  ) => void;
+  ) => Promise<ApiResponse<Recipe>>;
   deleteRecipe: (id: number) => void;
   createReview: (
     id: number,
@@ -59,11 +60,18 @@ export const recipeStore = create<RecipeState>((set, get) => ({
       .createRecipe(image, name, instructions, ingredients)
       .then((response) => {
         if (response.status) {
-          set((state) => ({ recipes: [...state.recipes, response.data] }));
+          set((state) => ({
+            recipes: [
+              ...state.recipes,
+              ...(response.data ? [response.data] : []),
+            ],
+          }));
         }
+        return response;
       })
-      .catch(() => {
+      .catch((error) => {
         set((state) => ({ recipes: [...state.recipes] }));
+        throw error;
       });
   },
   updateRecipe: (
@@ -77,17 +85,21 @@ export const recipeStore = create<RecipeState>((set, get) => ({
       .updateRecipe(id, image, name, instructions, ingredients)
       .then((response) => {
         if (response.status) {
-          set((state) => ({
-            recipes: state.recipes.map((r) =>
-              r.id === id ? response.data : r
-            ),
-          }));
+          if (response.data) {
+            set((state) => ({
+              recipes: state.recipes.map((r) =>
+                r.id === id && response.data ? response.data : r
+              ),
+            }));
+          }
         }
+        return response;
       })
-      .catch(() => {
+      .catch((error) => {
         set((state) => ({
           recipes: state.recipes.map((r) => (r.id === id ? r : r)),
         }));
+        throw error;
       });
   },
   deleteRecipe: (id: number) => {
