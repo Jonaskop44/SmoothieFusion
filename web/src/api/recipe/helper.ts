@@ -112,7 +112,7 @@ export class Helper {
     rating: number
   ) {
     return axios
-      .post(`/recipes/${id}/reviews/`, {
+      .post(`/recipes/${id}/review/`, {
         name: name,
         description: description,
         rating: rating,

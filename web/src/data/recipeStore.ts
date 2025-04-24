@@ -19,6 +19,12 @@ interface RecipeState {
     ingredients?: Ingredient[]
   ) => void;
   deleteRecipe: (id: number) => void;
+  createReview: (
+    id: number,
+    name: string,
+    description: string,
+    rating: number
+  ) => void;
 }
 
 const apiClient = new ApiClient();
@@ -93,6 +99,29 @@ export const recipeStore = create<RecipeState>((set) => ({
       .catch(() => {
         set((state) => ({
           recipes: state.recipes.filter((recipe) => recipe.id !== id),
+        }));
+      });
+  },
+  createReview: (
+    id: number,
+    name: string,
+    description: string,
+    rating: number
+  ) => {
+    return apiClient.recipe.helper
+      .createReview(id, name, description, rating)
+      .then((response) => {
+        if (response.status) {
+          set((state) => ({
+            recipes: state.recipes.map((r) =>
+              r.id === id ? { ...r, reviews: [...r.reviews, response.data] } : r
+            ),
+          }));
+        }
+      })
+      .catch(() => {
+        set((state) => ({
+          recipes: state.recipes.map((r) => (r.id === id ? r : r)),
         }));
       });
   },
