@@ -24,11 +24,8 @@ export const userStore = create<UserState>((set) => ({
     set({ user: {} as User, isLoggedIn: false });
   },
   fetchUser: () => {
-    const token = Cookies.get("accessToken");
-    if (!token) return;
-
-    return apiClient.auth.helper
-      .verifyToken(token)
+    return apiClient.user.helper
+      .getUserInfo()
       .then((response) => {
         if (response.status) {
           set({ user: response.data, isLoggedIn: true });

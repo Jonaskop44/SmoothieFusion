@@ -16,6 +16,7 @@ import type { Recipe } from "@/types/recipe";
 import { FC, useState } from "react";
 import { BACKEND_URL } from "@/lib/config";
 import CreateReviewModal from "../Review/CreateReviewModal";
+import useFormattedDate from "@/hooks/helper";
 
 interface RecipeDetailsModalProps {
   recipe: Recipe;
@@ -29,15 +30,7 @@ const RecipeDetailsModal: FC<RecipeDetailsModalProps> = ({
   onOpenChange,
 }) => {
   const [isOpenReviewModal, setIsOpenReviewModal] = useState(false);
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat("de-DE", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    }).format(date);
-  };
+  const formatDate = useFormattedDate();
 
   const calculateAverageRating = () => {
     if (recipe.reviews.length === 0) return 0;

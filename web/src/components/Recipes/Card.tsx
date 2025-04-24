@@ -7,6 +7,7 @@ import { Card, CardHeader, CardBody, CardFooter, Button } from "@heroui/react";
 import type { Recipe } from "@/types/recipe";
 import RecipeModal from "./RecipeDetailsModal";
 import { BACKEND_URL } from "@/lib/config";
+import useFormattedDate from "@/hooks/helper";
 
 interface RecipeCardProps {
   recipe: Recipe;
@@ -14,26 +15,14 @@ interface RecipeCardProps {
 
 const RecipeCard: FC<RecipeCardProps> = ({ recipe }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const formatDate = useFormattedDate();
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat("de-DE", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    }).format(date);
-  };
-
-  // Anzahl der Zutaten
   const ingredientCount = recipe.ingredients.length;
-
-  // Gekürzte Anleitung für die Vorschau
   const truncatedInstructions =
     recipe.instructions.length > 100
       ? `${recipe.instructions.substring(0, 100)}...`
       : recipe.instructions;
 
-  // Durchschnittliche Bewertung berechnen
   const calculateAverageRating = () => {
     if (recipe.reviews.length === 0) return 0;
     const sum = recipe.reviews.reduce(
@@ -66,7 +55,7 @@ const RecipeCard: FC<RecipeCardProps> = ({ recipe }) => {
           </h3>
           <p className="text-gray-600 text-sm mb-4">{truncatedInstructions}</p>
 
-          {/* Bewertung */}
+          {/* Rating */}
           <div className="flex items-center mb-2">
             <div className="flex mr-2">
               {[1, 2, 3, 4, 5].map((star) => (

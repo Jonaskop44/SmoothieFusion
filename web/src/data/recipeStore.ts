@@ -4,6 +4,7 @@ import { Ingredient, Recipe } from "@/types/recipe";
 
 interface RecipeState {
   recipes: Recipe[];
+  userRecipes: (userId: number) => Recipe[];
   fetchRecipes: () => void;
   createRecipe: (
     image: File,
@@ -29,8 +30,11 @@ interface RecipeState {
 
 const apiClient = new ApiClient();
 
-export const recipeStore = create<RecipeState>((set) => ({
+export const recipeStore = create<RecipeState>((set, get) => ({
   recipes: [] as Recipe[],
+  userRecipes: (userId: number) => {
+    return get().recipes.filter((recipe) => recipe.author === userId);
+  },
   fetchRecipes: () => {
     return apiClient.recipe.helper
       .getAllRecipes()
