@@ -7,7 +7,7 @@ import { useState } from "react";
 import { userStore } from "@/data/userStore";
 import AuthModal, { AuthVariant } from "../UI/AuthModal";
 import { toast } from "sonner";
-import CreateRecipeModal from "../Recipes/CreateRecipeModal";
+import FormRecipeModal from "../Recipes/FormRecipeModal";
 
 const EmptyRecipeState = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -59,7 +59,7 @@ const EmptyRecipeState = () => {
         variant={authVariant}
         onVariantChange={setAuthVariant}
       />
-      <CreateRecipeModal
+      <FormRecipeModal
         isOpen={isCreateRecipeModalOpen}
         onOpenChange={setIsCreateRecipeModalOpen}
       />

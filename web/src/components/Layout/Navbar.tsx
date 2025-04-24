@@ -25,7 +25,7 @@ import clsx from "clsx";
 import AuthModal, { AuthVariant } from "../UI/AuthModal";
 import { userStore } from "@/data/userStore";
 import { toast } from "sonner";
-import CreateRecipeModal from "../Recipes/CreateRecipeModal";
+import FormRecipeModal from "../Recipes/FormRecipeModal";
 
 const NavbarLayout = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -265,7 +265,7 @@ const NavbarLayout = () => {
         variant={authVariant}
         onVariantChange={setAuthVariant}
       />
-      <CreateRecipeModal
+      <FormRecipeModal
         isOpen={isRecipeModalOpen}
         onOpenChange={setIsRecipeModalOpen}
       />

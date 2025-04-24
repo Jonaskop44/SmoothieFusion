@@ -5,11 +5,11 @@ import { motion } from "framer-motion";
 import { Button } from "@heroui/react";
 import { containerVariants, itemVariants } from "./animations";
 import { useRouter } from "next/navigation";
-import CreateRecipeModal from "@/components/Recipes/CreateRecipeModal";
 import { useState } from "react";
 import { userStore } from "@/data/userStore";
 import { toast } from "sonner";
 import AuthModal, { AuthVariant } from "@/components/UI/AuthModal";
+import FormRecipeModal from "@/components/Recipes/FormRecipeModal";
 
 const Hero = () => {
   const router = useRouter();
@@ -93,7 +93,7 @@ const Hero = () => {
         variant={authVariant}
         onVariantChange={setAuthVariant}
       />
-      <CreateRecipeModal isOpen={isModalOpen} onOpenChange={setIsModalOpen} />
+      <FormRecipeModal isOpen={isModalOpen} onOpenChange={setIsModalOpen} />
     </>
   );
 };
