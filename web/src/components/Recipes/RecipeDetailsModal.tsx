@@ -17,6 +17,9 @@ import { FC, useState } from "react";
 import { BACKEND_URL } from "@/lib/config";
 import CreateReviewModal from "../Review/CreateReviewModal";
 import useFormattedDate from "@/hooks/helper";
+import { userStore } from "@/data/userStore";
+import { toast } from "sonner";
+import AuthModal, { AuthVariant } from "../UI/AuthModal";
 
 interface RecipeDetailsModalProps {
   recipe: Recipe;
@@ -30,7 +33,10 @@ const RecipeDetailsModal: FC<RecipeDetailsModalProps> = ({
   onOpenChange,
 }) => {
   const [isOpenReviewModal, setIsOpenReviewModal] = useState(false);
+  const [isOpenAuthModal, setIsOpenAuthModal] = useState(false);
+  const [authVariant, setAuthVariant] = useState<AuthVariant>("LOGIN");
   const formatDate = useFormattedDate();
+  const { isLoggedIn } = userStore();
 
   const calculateAverageRating = () => {
     if (recipe.reviews.length === 0) return 0;
@@ -212,7 +218,17 @@ const RecipeDetailsModal: FC<RecipeDetailsModalProps> = ({
                   Schließen
                 </Button>
                 <Button
-                  onPress={() => setIsOpenReviewModal(true)}
+                  onPress={() => {
+                    if (isLoggedIn) {
+                      setIsOpenReviewModal(true);
+                    } else {
+                      toast.warning(
+                        "Bitte melde dich an, um eine Bewertung abzugeben."
+                      );
+                      setIsOpenAuthModal(true);
+                      return;
+                    }
+                  }}
                   color="primary"
                   className="bg-emerald-600 hover:bg-emerald-700"
                 >
@@ -227,6 +243,12 @@ const RecipeDetailsModal: FC<RecipeDetailsModalProps> = ({
         isOpen={isOpenReviewModal}
         onOpenChange={setIsOpenReviewModal}
         recipe={recipe}
+      />
+      <AuthModal
+        isOpen={isOpenAuthModal}
+        onOpenChange={() => setIsOpenAuthModal(!isOpenAuthModal)}
+        variant={authVariant}
+        onVariantChange={setAuthVariant}
       />
     </>
   );
