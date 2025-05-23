@@ -19,7 +19,7 @@ import type { Ingredient, Recipe } from "@/types/recipe";
 import { Unit } from "@/types/recipe";
 import { toast } from "sonner";
 import { recipeStore } from "@/data/recipeStore";
-import { BACKEND_URL } from "@/lib/config";
+import { IMAGE_URL } from "@/lib/config";
 
 interface FormRecipeModalProps {
   isOpen: boolean;
@@ -62,7 +62,7 @@ const FormRecipeModal: FC<FormRecipeModalProps> = ({
       if (isEditMode && recipe) {
         setName(recipe.name);
         setInstructions(recipe.instructions);
-        setImage(`${BACKEND_URL}${recipe.image}`);
+        setImage(`${IMAGE_URL}${recipe.image}`);
         setIngredients([...recipe.ingredients]);
       } else {
         resetForm();

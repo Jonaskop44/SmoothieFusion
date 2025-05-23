@@ -14,7 +14,7 @@ import {
 } from "@heroui/react";
 import type { Recipe } from "@/types/recipe";
 import { FC, useState } from "react";
-import { BACKEND_URL } from "@/lib/config";
+import { IMAGE_URL } from "@/lib/config";
 import CreateReviewModal from "../Review/CreateReviewModal";
 import useFormattedDate from "@/hooks/helper";
 import { userStore } from "@/data/userStore";
@@ -93,7 +93,7 @@ const RecipeDetailsModal: FC<RecipeDetailsModalProps> = ({
               <ModalBody>
                 {/* <div className="relative h-64 w-full mb-6">
                   <Image
-                    src={`${BACKEND_URL}${recipe.image}`}
+                    src={`${IMAGE_URL}${recipe.image}`}
                     alt={recipe.name}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -102,7 +102,7 @@ const RecipeDetailsModal: FC<RecipeDetailsModalProps> = ({
                 </div> */}
                 <div className="w-full mb-6 flex justify-center">
                   <Image
-                    src={`${BACKEND_URL}${recipe.image}`}
+                    src={`${IMAGE_URL}${recipe.image}`}
                     alt={recipe.name}
                     layout="intrinsic"
                     width={800}

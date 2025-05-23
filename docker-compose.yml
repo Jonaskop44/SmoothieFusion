@@ -17,6 +17,18 @@ services:
       - proxy
     ports:
       - "3306:3306"
+  smoothiefusion-nginx:
+    container_name: smoothiefusion-nginx
+    image: nginx:latest
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./server/media:/media
+    ports:
+      - "8080:80"
+    depends_on:
+      - smoothiefusion-server
+    networks:
+      - proxy
   smoothiefusion-web:
     container_name: smoothiefusion-web
     build:

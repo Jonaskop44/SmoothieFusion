@@ -18,7 +18,7 @@ import Image from "next/image";
 import type { Recipe } from "@/types/recipe";
 import RecipeDetailsModal from "../Recipes/RecipeDetailsModal";
 import DeleteRecipeConfirmation from "../Recipes/DeleteRecipeConfirmationModal";
-import { BACKEND_URL } from "@/lib/config";
+import { IMAGE_URL } from "@/lib/config";
 import { recipeStore } from "@/data/recipeStore";
 import { toast } from "sonner";
 import useFormattedDate from "@/hooks/helper";
@@ -132,7 +132,7 @@ const UserRecipes: FC<UserRecipesProps> = ({ recipes }) => {
                   <CardHeader className="p-0 overflow-hidden">
                     <div className="relative h-48 w-full">
                       <Image
-                        src={`${BACKEND_URL}${recipe.image}`}
+                        src={`${IMAGE_URL}${recipe.image}`}
                         alt={recipe.name}
                         fill
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
