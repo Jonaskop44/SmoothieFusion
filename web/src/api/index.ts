@@ -3,6 +3,7 @@ import Cookies from "js-cookie";
 import { Auth } from "./auth";
 import { Recipe } from "./recipe";
 import { User } from "./user";
+import { BACKEND_URL } from "@/lib/config";
 
 export default class ApiClient {
   auth: Auth;
@@ -17,6 +18,6 @@ export default class ApiClient {
     if (accessToken) {
       axios.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
     }
-    axios.defaults.baseURL = "http://127.0.0.1:3001/api/";
+    axios.defaults.baseURL = `${BACKEND_URL}/api`;
   }
 }

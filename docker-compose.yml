@@ -1,0 +1,58 @@
+version: "3.8"
+services:
+  smoothiefusion-db:
+    container_name: smoothiefusion-db
+    image: mysql:latest
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: always
+    env_file:
+      - ./server/.env
+    volumes:
+      - phantomcontrol-db-data:/var/lib/mysql
+    networks:
+      - proxy
+    ports:
+      - "3306:3306"
+  smoothiefusion-web:
+    container_name: smoothiefusion-web
+    build:
+      context: web/
+      dockerfile: Dockerfile
+      target: prod
+    restart: always
+    networks:
+      - proxy
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./web/.env
+  smoothiefusion-server:
+    container_name: smoothiefusion-server
+    build:
+      context: server/
+      dockerfile: Dockerfile
+      target: prod
+    restart: always
+    env_file:
+      - ./server/.env
+    networks:
+      - proxy
+    ports:
+      - "3001:3001"
+    depends_on:
+      - smoothiefusion-db
+    volumes:
+      - ./server/media/recipes:/app/media/recipes
+
+volumes:
+  phantomcontrol-db-data:
+    driver: local
+
+networks:
+  proxy:
+    external: false
+    name: proxy
