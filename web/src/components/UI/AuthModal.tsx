@@ -159,10 +159,14 @@ const AuthModal: FC<AuthModalProps> = ({
             setUser(response.data.user);
             Cookies.set("accessToken", response.data.accessToken, {
               expires: 1,
+              sameSite: "Lax",
+              secure: false,
             });
             if (data.rememberMe) {
               Cookies.set("refreshToken", response.data.refreshToken, {
                 expires: 7,
+                sameSite: "Lax",
+                secure: false,
               });
             }
 

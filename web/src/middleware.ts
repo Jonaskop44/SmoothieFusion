@@ -6,7 +6,8 @@ import ApiClient from "./api";
 const apiClient = new ApiClient();
 
 export default async function middleware(req: NextRequest) {
-  const cookies = cookie.parse(req.headers.get("cookie") || "");
+  const rawCookieHeader = req.headers.get("cookie") || "";
+  const cookies = cookie.parse(rawCookieHeader);
   const token = cookies.accessToken;
   const url = req.nextUrl.clone();
   const path = url.pathname;
@@ -29,4 +30,5 @@ async function isTokenValid(token: string) {
 
 export const config = {
   matcher: ["/profil", "/"],
+  runtime: "nodejs",
 };

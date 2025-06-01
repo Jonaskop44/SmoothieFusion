@@ -41,7 +41,7 @@ export class Helper {
 
   async verifyToken(token: string) {
     return axios
-      .get("/auth/verify-token/", {
+      .get("http://smoothiefusion-server:3001/api/auth/verify-token/", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
